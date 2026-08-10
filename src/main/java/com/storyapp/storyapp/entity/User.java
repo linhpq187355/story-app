@@ -27,6 +27,6 @@ public class User extends BaseEntity {
     @Column(nullable = false)
     private Role role = Role.ROLE_MEMBER;
 
-    @Column(nullable = false)
+    @Column(name = "is_vip", nullable = false)
     private Boolean isVip = false;
 }

@@ -1,4 +1,4 @@
-package com.storyapp.storyapp.controller;
+package com.storyapp.storyapp.controller.admin;
 
 import com.storyapp.storyapp.dto.request.ChapterRequest;
 import com.storyapp.storyapp.dto.request.StoryRequest;
