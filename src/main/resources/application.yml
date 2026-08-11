@@ -18,3 +18,7 @@ spring:
 app:
   upload:
     audio-dir: ${APP_UPLOAD_AUDIO_DIR:uploads/audio}
+  security:
+    jwt:
+      secret: ${JWT_SECRET}
+      expiration-ms: ${JWT_EXPIRATION_MS}
