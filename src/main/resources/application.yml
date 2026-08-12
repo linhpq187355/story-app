@@ -24,3 +24,7 @@ app:
       expiration-ms: ${JWT_EXPIRATION_MS}
   cors:
     allowed-origins: ${APP_CORS_ALLOWED_ORIGINS:http://localhost:3000,http://localhost:8080}
+
+logging:
+  level:
+    org.springframework.security: DEBUG

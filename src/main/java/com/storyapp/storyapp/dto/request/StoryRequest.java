@@ -17,31 +17,11 @@ public class StoryRequest {
 
     private Long authorId;
 
-    @Size(max = 100)
-    private String authorName;
-
     private Long genreId;
-
-    @Size(max = 100)
-    private String genreName;
 
     private String coverImageUrl;
 
     private String description;
 
     private StoryStatus status = StoryStatus.ONGOING;
-
-    @AssertTrue(message = "authorId or authorName is required")
-    public boolean isAuthorProvided() {
-        return authorId != null || hasText(authorName);
-    }
-
-    @AssertTrue(message = "genreId or genreName is required")
-    public boolean isGenreProvided() {
-        return genreId != null || hasText(genreName);
-    }
-
-    private boolean hasText(String value) {
-        return value != null && !value.trim().isEmpty();
-    }
 }
