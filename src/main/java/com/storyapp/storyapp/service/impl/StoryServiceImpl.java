@@ -2,8 +2,6 @@ package com.storyapp.storyapp.service.impl;
 
 import com.storyapp.storyapp.dto.request.StoryRequest;
 import com.storyapp.storyapp.dto.response.StoryResponse;
-import com.storyapp.storyapp.entity.Author;
-import com.storyapp.storyapp.entity.Genre;
 import com.storyapp.storyapp.entity.Story;
 import com.storyapp.storyapp.exception.ResourceNotFoundException;
 import com.storyapp.storyapp.mapper.StoryMapper;
@@ -84,34 +82,24 @@ public class StoryServiceImpl implements StoryService {
         story.setCoverImageUrl(trimToNull(request.getCoverImageUrl()));
         story.setDescription(trimToNull(request.getDescription()));
         story.setStatus(request.getStatus());
-        story.setAuthor(resolveAuthor(request));
-        story.setGenre(resolveGenre(request));
-    }
 
-    private Author resolveAuthor(StoryRequest request) {
-        if (request.getAuthorId() != null) {
-            return authorRepository.findById(request.getAuthorId())
-                    .orElseThrow(() -> new ResourceNotFoundException("Author", "id", request.getAuthorId()));
-        }
-        String name = request.getAuthorName().trim();
-        return authorRepository.findByName(name).orElseGet(() -> {
-            Author author = new Author();
-            author.setName(name);
-            return authorRepository.save(author);
-        });
-    }
+        story.setAuthor(
+                authorRepository.findById(request.getAuthorId())
+                        .orElseThrow(() ->
+                                new ResourceNotFoundException(
+                                        "Author",
+                                        "id",
+                                        request.getAuthorId()))
+        );
 
-    private Genre resolveGenre(StoryRequest request) {
-        if (request.getGenreId() != null) {
-            return genreRepository.findById(request.getGenreId())
-                    .orElseThrow(() -> new ResourceNotFoundException("Genre", "id", request.getGenreId()));
-        }
-        String name = request.getGenreName().trim();
-        return genreRepository.findByName(name).orElseGet(() -> {
-            Genre genre = new Genre();
-            genre.setName(name);
-            return genreRepository.save(genre);
-        });
+        story.setGenre(
+                genreRepository.findById(request.getGenreId())
+                        .orElseThrow(() ->
+                                new ResourceNotFoundException(
+                                        "Genre",
+                                        "id",
+                                        request.getGenreId()))
+        );
     }
 
     private Story findStory(Long id) {
