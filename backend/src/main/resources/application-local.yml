@@ -1,0 +1,10 @@
+spring:
+  datasource:
+    username: story_user
+    password: story123
+
+app:
+  security:
+    jwt:
+      secret: 6GmTq9XvP2rYwL8bNc4Hs7KfZa1DxEuRm5QjVt3Wp8MnCy2AkBh9Sd6FgLrTxUzE
+      expiration-ms: 86400000
