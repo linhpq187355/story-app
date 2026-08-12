@@ -22,4 +22,6 @@ public interface ChapterService {
     AudioFileResponse uploadAudio(Long chapterId, MultipartFile file);
 
     List<AudioFileResponse> getAudioFiles(Long chapterId);
+
+    ChapterResponse getPublicChapter(Long storyId, Long chapterId);
 }

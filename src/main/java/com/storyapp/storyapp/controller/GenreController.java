@@ -25,25 +25,8 @@ public class GenreController {
 
     private final GenreService genreService;
 
-    @PostMapping
-    @ResponseStatus(HttpStatus.CREATED)
-    public GenreResponse create(@Valid @RequestBody CreateGenreRequest request) {
-        return genreService.create(request);
-    }
-
     @GetMapping
     public List<GenreResponse> getAll() {
         return genreService.getAll();
-    }
-
-    @PutMapping("/{id}")
-    public GenreResponse update(@PathVariable Long id, @Valid @RequestBody CreateGenreRequest request) {
-        return genreService.update(id, request);
-    }
-
-    @DeleteMapping("/{id}")
-    @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void delete(@PathVariable Long id) {
-        genreService.delete(id);
     }
 }

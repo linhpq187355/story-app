@@ -5,15 +5,17 @@ import com.storyapp.storyapp.dto.response.StoryResponse;
 import com.storyapp.storyapp.entity.Author;
 import com.storyapp.storyapp.entity.Genre;
 import com.storyapp.storyapp.entity.Story;
+import com.storyapp.storyapp.exception.ResourceNotFoundException;
+import com.storyapp.storyapp.mapper.StoryMapper;
 import com.storyapp.storyapp.repository.AuthorRepository;
 import com.storyapp.storyapp.repository.GenreRepository;
 import com.storyapp.storyapp.repository.StoryRepository;
 import com.storyapp.storyapp.service.StoryService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 
@@ -25,41 +27,56 @@ public class StoryServiceImpl implements StoryService {
     private final StoryRepository storyRepository;
     private final AuthorRepository authorRepository;
     private final GenreRepository genreRepository;
+    private final StoryMapper storyMapper;
 
     @Override
     public StoryResponse create(StoryRequest request) {
         Story story = new Story();
         applyRequest(story, request);
-        return toResponse(storyRepository.save(story));
+        return storyMapper.toResponse(storyRepository.save(story));
     }
 
     @Override
     @Transactional(readOnly = true)
     public List<StoryResponse> getAll() {
         return storyRepository.findAll().stream()
-                .map(this::toResponse)
+                .map(storyMapper::toResponse)
                 .toList();
     }
 
     @Override
     @Transactional(readOnly = true)
     public StoryResponse getById(Long id) {
-        return toResponse(findStory(id));
+        return storyMapper.toResponse(findStory(id));
     }
 
     @Override
     public StoryResponse update(Long id, StoryRequest request) {
         Story story = findStory(id);
         applyRequest(story, request);
-        return toResponse(storyRepository.save(story));
+        return storyMapper.toResponse(storyRepository.save(story));
     }
 
     @Override
     public void delete(Long id) {
         if (!storyRepository.existsById(id)) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Story not found");
+            throw new ResourceNotFoundException("Story", "id", id);
         }
         storyRepository.deleteById(id);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Page<StoryResponse> findPublicStories(String keyword, Long genreId, Pageable pageable) {
+        return storyRepository.findPublicStories(keyword, genreId, pageable)
+                .map(storyMapper::toResponse);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public StoryResponse getPublicStoryDetails(Long storyId) {
+        Story story = findStory(storyId);
+        return storyMapper.toResponse(story);
     }
 
     private void applyRequest(Story story, StoryRequest request) {
@@ -74,7 +91,7 @@ public class StoryServiceImpl implements StoryService {
     private Author resolveAuthor(StoryRequest request) {
         if (request.getAuthorId() != null) {
             return authorRepository.findById(request.getAuthorId())
-                    .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Author not found"));
+                    .orElseThrow(() -> new ResourceNotFoundException("Author", "id", request.getAuthorId()));
         }
         String name = request.getAuthorName().trim();
         return authorRepository.findByName(name).orElseGet(() -> {
@@ -87,7 +104,7 @@ public class StoryServiceImpl implements StoryService {
     private Genre resolveGenre(StoryRequest request) {
         if (request.getGenreId() != null) {
             return genreRepository.findById(request.getGenreId())
-                    .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Genre not found"));
+                    .orElseThrow(() -> new ResourceNotFoundException("Genre", "id", request.getGenreId()));
         }
         String name = request.getGenreName().trim();
         return genreRepository.findByName(name).orElseGet(() -> {
@@ -99,23 +116,7 @@ public class StoryServiceImpl implements StoryService {
 
     private Story findStory(Long id) {
         return storyRepository.findById(id)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Story not found"));
-    }
-
-    private StoryResponse toResponse(Story story) {
-        return StoryResponse.builder()
-                .id(story.getId())
-                .title(story.getTitle())
-                .coverImageUrl(story.getCoverImageUrl())
-                .description(story.getDescription())
-                .status(story.getStatus())
-                .authorId(story.getAuthor().getId())
-                .authorName(story.getAuthor().getName())
-                .genreId(story.getGenre().getId())
-                .genreName(story.getGenre().getName())
-                .createdAt(story.getCreatedAt())
-                .updatedAt(story.getUpdatedAt())
-                .build();
+                .orElseThrow(() -> new ResourceNotFoundException("Story", "id", id));
     }
 
     private String trimToNull(String value) {

@@ -6,14 +6,21 @@ import com.storyapp.storyapp.dto.response.ChapterResponse;
 import com.storyapp.storyapp.entity.AudioFile;
 import com.storyapp.storyapp.entity.Chapter;
 import com.storyapp.storyapp.entity.Story;
+import com.storyapp.storyapp.enums.AccessLevel;
 import com.storyapp.storyapp.enums.AudioSource;
+import com.storyapp.storyapp.exception.ForbiddenException;
+import com.storyapp.storyapp.exception.ResourceNotFoundException;
+import com.storyapp.storyapp.mapper.ChapterMapper;
 import com.storyapp.storyapp.repository.AudioFileRepository;
 import com.storyapp.storyapp.repository.ChapterRepository;
 import com.storyapp.storyapp.repository.StoryRepository;
+import com.storyapp.storyapp.security.UserPrincipal;
 import com.storyapp.storyapp.service.ChapterService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
@@ -35,6 +42,7 @@ public class ChapterServiceImpl implements ChapterService {
     private final StoryRepository storyRepository;
     private final ChapterRepository chapterRepository;
     private final AudioFileRepository audioFileRepository;
+    private final ChapterMapper chapterMapper;
 
     @Value("${app.upload.audio-dir:uploads/audio}")
     private String audioUploadDir;
@@ -49,7 +57,7 @@ public class ChapterServiceImpl implements ChapterService {
         Chapter chapter = new Chapter();
         chapter.setStory(story);
         applyRequest(chapter, request);
-        return toResponse(chapterRepository.save(chapter));
+        return chapterMapper.toResponse(chapterRepository.save(chapter));
     }
 
     @Override
@@ -57,14 +65,14 @@ public class ChapterServiceImpl implements ChapterService {
     public List<ChapterResponse> getByStory(Long storyId) {
         ensureStoryExists(storyId);
         return chapterRepository.findByStoryIdOrderByChapterNumberAsc(storyId).stream()
-                .map(this::toResponse)
+                .map(chapterMapper::toResponse)
                 .toList();
     }
 
     @Override
     @Transactional(readOnly = true)
     public ChapterResponse getById(Long storyId, Long chapterId) {
-        return toResponse(findChapter(storyId, chapterId));
+        return chapterMapper.toResponse(findChapter(storyId, chapterId));
     }
 
     @Override
@@ -76,7 +84,7 @@ public class ChapterServiceImpl implements ChapterService {
         }
 
         applyRequest(chapter, request);
-        return toResponse(chapterRepository.save(chapter));
+        return chapterMapper.toResponse(chapterRepository.save(chapter));
     }
 
     @Override
@@ -87,53 +95,69 @@ public class ChapterServiceImpl implements ChapterService {
 
     @Override
     public AudioFileResponse uploadAudio(Long chapterId, MultipartFile file) {
-        Chapter chapter = chapterRepository.findById(chapterId)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Chapter not found"));
-        if (file == null || file.isEmpty()) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Audio file is required");
-        }
-        if (file.getContentType() == null || !file.getContentType().startsWith("audio/")) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Only audio files are allowed");
-        }
-
-        String originalFileName = StringUtils.cleanPath(file.getOriginalFilename() == null
-                ? "audio"
-                : file.getOriginalFilename());
-        String extension = StringUtils.getFilenameExtension(originalFileName);
-        String storedFileName = UUID.randomUUID() + (extension == null ? "" : "." + extension);
-
-        try {
-            Path uploadPath = Path.of(audioUploadDir).toAbsolutePath().normalize();
-            Files.createDirectories(uploadPath);
-            Path targetPath = uploadPath.resolve(storedFileName).normalize();
-            if (!targetPath.startsWith(uploadPath)) {
-                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid audio file name");
-            }
-            Files.copy(file.getInputStream(), targetPath, StandardCopyOption.REPLACE_EXISTING);
-
-            AudioFile audioFile = new AudioFile();
-            audioFile.setChapter(chapter);
-            audioFile.setFilePath(targetPath.toString());
-            audioFile.setOriginalFileName(originalFileName);
-            audioFile.setContentType(file.getContentType());
-            audioFile.setFileSize(file.getSize());
-            audioFile.setSource(AudioSource.UPLOAD);
-            return toResponse(audioFileRepository.save(audioFile));
-        } catch (IOException ex) {
-            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Could not store audio file", ex);
-        }
+        //logic
+        return null;
     }
 
     @Override
     @Transactional(readOnly = true)
     public List<AudioFileResponse> getAudioFiles(Long chapterId) {
-        if (!chapterRepository.existsById(chapterId)) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Chapter not found");
-        }
-        return audioFileRepository.findByChapterIdOrderByCreatedAtDesc(chapterId).stream()
-                .map(this::toResponse)
-                .toList();
+        //logic
+        return null;
     }
+
+    @Override
+    @Transactional(readOnly = true)
+    public ChapterResponse getPublicChapter(Long storyId, Long chapterId) {
+        Chapter chapter = findChapter(storyId, chapterId);
+        checkAccess(chapter);
+
+        ChapterResponse response = chapterMapper.toResponse(chapter);
+        return response;
+    }
+
+    private void checkAccess(Chapter chapter) {
+
+        AccessLevel level = chapter.getAccessLevel();
+
+        if (level == AccessLevel.PUBLIC) {
+            return;
+        }
+
+        Authentication authentication =
+                SecurityContextHolder.getContext().getAuthentication();
+
+        if (authentication == null
+                || !authentication.isAuthenticated()
+                || "anonymousUser".equals(authentication.getPrincipal())) {
+
+            throw new ForbiddenException(
+                    "Login required.",
+                    level
+            );
+        }
+
+        UserPrincipal principal =
+                (UserPrincipal) authentication.getPrincipal();
+
+        if (principal.isAdmin()) {
+            return;
+        }
+
+        if (level == AccessLevel.MEMBER) {
+            return;
+        }
+
+        if (level == AccessLevel.VIP && principal.isVip()) {
+            return;
+        }
+
+        throw new ForbiddenException(
+                "You do not have the required permission to access this chapter.",
+                level
+        );
+    }
+
 
     private void applyRequest(Chapter chapter, ChapterRequest request) {
         chapter.setTitle(request.getTitle().trim());
@@ -144,45 +168,17 @@ public class ChapterServiceImpl implements ChapterService {
 
     private Story findStory(Long storyId) {
         return storyRepository.findById(storyId)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Story not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Story", "id", storyId));
     }
 
     private void ensureStoryExists(Long storyId) {
         if (!storyRepository.existsById(storyId)) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Story not found");
+            throw new ResourceNotFoundException("Story", "id", storyId);
         }
     }
 
     private Chapter findChapter(Long storyId, Long chapterId) {
         return chapterRepository.findByStoryIdAndId(storyId, chapterId)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Chapter not found"));
-    }
-
-    private ChapterResponse toResponse(Chapter chapter) {
-        return ChapterResponse.builder()
-                .id(chapter.getId())
-                .storyId(chapter.getStory().getId())
-                .storyTitle(chapter.getStory().getTitle())
-                .title(chapter.getTitle())
-                .chapterNumber(chapter.getChapterNumber())
-                .content(chapter.getContent())
-                .accessLevel(chapter.getAccessLevel())
-                .createdAt(chapter.getCreatedAt())
-                .updatedAt(chapter.getUpdatedAt())
-                .build();
-    }
-
-    private AudioFileResponse toResponse(AudioFile audioFile) {
-        return AudioFileResponse.builder()
-                .id(audioFile.getId())
-                .chapterId(audioFile.getChapter().getId())
-                .filePath(audioFile.getFilePath())
-                .originalFileName(audioFile.getOriginalFileName())
-                .contentType(audioFile.getContentType())
-                .fileSize(audioFile.getFileSize())
-                .duration(audioFile.getDuration())
-                .source(audioFile.getSource())
-                .createdAt(audioFile.getCreatedAt())
-                .build();
+                .orElseThrow(() -> new ResourceNotFoundException("Chapter", "id", chapterId));
     }
 }
