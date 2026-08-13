@@ -1,0 +1,283 @@
+/* Container */
+.login-container {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #060d1a 0%, #0f1f35 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  position: relative;
+}
+
+/* Login Card */
+.login-card {
+  width: 100%;
+  max-width: 450px;
+  background: #0a1629;
+  border: 1px solid #1e3254;
+  border-radius: 16px;
+  padding: 48px 40px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+}
+
+/* Header */
+.login-header {
+  text-align: center;
+  margin-bottom: 40px;
+}
+
+.login-header h1 {
+  color: #fff;
+  font-size: 28px;
+  font-weight: bold;
+  margin-bottom: 8px;
+  margin-top: 0;
+  font-family: Inter, sans-serif;
+}
+
+.login-header p {
+  color: #8fa3b8;
+  font-size: 14px;
+  font-weight: 500;
+  font-family: Inter, sans-serif;
+}
+
+/* Error Message */
+.error-message {
+  background: #2d1415;
+  border: 1px solid #7d3f47;
+  border-radius: 8px;
+  padding: 12px 16px;
+  margin-bottom: 24px;
+  color: #ff6b6b;
+  font-size: 14px;
+  font-weight: 500;
+  font-family: Inter, sans-serif;
+}
+
+/* Form */
+.login-form {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+/* Form Group (field container) */
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+/* Labels */
+.form-label {
+  color: #c2d1dc;
+  font-size: 14px;
+  font-weight: 500;
+  font-family: Inter, sans-serif;
+  text-align: left;
+}
+
+/* Input Wrapper */
+.input-wrapper {
+  display: flex;
+  align-items: center;
+  background: #0f1f35;
+  border: 1px solid #1e3254;
+  border-radius: 8px;
+  padding: 12px 16px;
+  gap: 12px;
+  transition: all 0.3s ease;
+}
+
+.input-wrapper:hover {
+  border-color: #2d5ba8;
+  background: #132847;
+}
+
+/* Input Fields */
+.input-wrapper input {
+  flex: 1;
+  background: transparent;
+  border: none;
+  outline: none;
+  color: #fff;
+  font-size: 14px;
+  font-family: Inter, sans-serif;
+}
+
+.input-wrapper input::placeholder {
+  color: #5fa3d0;
+  opacity: 0.7;
+}
+
+/* Icon Button (show/hide password) */
+.icon-button {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  color: #5fa3d0;
+  transition: color 0.3s ease;
+}
+
+.icon-button:hover {
+  color: #7bb8e8;
+}
+
+/* Remember & Forgot Section */
+.form-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.remember-me {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+}
+
+.remember-me input[type="checkbox"] {
+  width: 16px;
+  height: 16px;
+  cursor: pointer;
+  accent-color: #2d5ba8;
+}
+
+.remember-me label {
+  color: #8fa3b8;
+  font-size: 14px;
+  font-weight: 500;
+  font-family: Inter, sans-serif;
+  cursor: pointer;
+}
+
+.forgot-password {
+  color: #5fa3d0;
+  font-size: 14px;
+  font-weight: 500;
+  text-decoration: none;
+  font-family: Inter, sans-serif;
+  transition: color 0.3s ease;
+}
+
+.forgot-password:hover {
+  color: #7bb8e8;
+}
+
+/* Login Button */
+.login-button {
+  background: linear-gradient(135deg, #2d5ba8 0%, #1e3f5a 100%);
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  padding: 12px 16px;
+  font-size: 16px;
+  font-weight: bold;
+  font-family: Inter, sans-serif;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  transition: all 0.3s ease;
+}
+
+.login-button:hover:not(:disabled) {
+  background: linear-gradient(135deg, #3a6db8 0%, #2a4f6a 100%);
+}
+
+.login-button:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+/* Spinner animation */
+.spinner {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Divider */
+.divider-container {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 24px 0;
+}
+
+.divider-line {
+  flex: 1;
+  height: 1px;
+  background: #1e3254;
+}
+
+.divider-text {
+  color: #5fa3d0;
+  font-size: 12px;
+  font-weight: 500;
+  font-family: Inter, sans-serif;
+}
+
+/* Social Login Button */
+.social-button {
+  width: 100%;
+  background: #0f1f35;
+  border: 1px solid #1e3254;
+  border-radius: 8px;
+  padding: 12px 16px;
+  color: #c2d1dc;
+  font-size: 14px;
+  font-weight: 500;
+  font-family: Inter, sans-serif;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.social-button:hover {
+  border-color: #2d5ba8;
+  background: #132847;
+}
+
+/* Register Link Section */
+.register-section {
+  text-align: center;
+  margin-top: 24px;
+  color: #8fa3b8;
+  font-size: 14px;
+  font-family: Inter, sans-serif;
+}
+
+.register-link {
+  color: #5fa3d0;
+  text-decoration: none;
+  font-weight: 600;
+  transition: color 0.3s ease;
+}
+
+.register-link:hover {
+  color: #7bb8e8;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .login-card {
+    padding: 32px 24px;
+  }
+
+  .login-header h1 {
+    font-size: 24px;
+  }
+
+  .login-container {
+    padding: 12px;
+  }
+}

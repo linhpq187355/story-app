@@ -22,4 +22,7 @@ public class RegisterRequest {
     @NotBlank(message = "Password is required")
     @Size(min = 6, max = 100)
     private String password;
+
+    @NotBlank(message = "Password confirmation is required")
+    private String passwordConfirm;
 }

@@ -35,6 +35,10 @@ public class AuthServiceImpl implements AuthService {
         String username = request.getUsername().trim();
         String email = request.getEmail().trim().toLowerCase();
 
+        if (!request.getPassword().equals(request.getPasswordConfirm())) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Passwords do not match");
+        }
+
         if (userRepository.existsByUsername(username)) {
             throw new ResponseStatusException(HttpStatus.CONFLICT, "Username already exists");
         }
@@ -73,6 +77,14 @@ public class AuthServiceImpl implements AuthService {
         User user = userRepository.findById(principal.getId())
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
         return toResponse(user);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public AuthResponse refreshToken(UserPrincipal principal) {
+        User user = userRepository.findById(principal.getId())
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
+        return buildAuthResponse(user);
     }
 
     private User findByUsernameOrEmail(String usernameOrEmail) {
