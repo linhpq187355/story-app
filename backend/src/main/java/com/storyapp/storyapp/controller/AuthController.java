@@ -39,6 +39,11 @@ public class AuthController {
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void logout() {}
 
+    @PostMapping("/refresh")
+    public AuthResponse refreshToken(@AuthenticationPrincipal UserPrincipal principal) {
+        return authService.refreshToken(principal);
+    }
+
     @GetMapping("/me")
     public UserResponse me(@AuthenticationPrincipal UserPrincipal principal) {
         return authService.getCurrentUser(principal);

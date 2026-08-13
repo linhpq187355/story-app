@@ -13,4 +13,6 @@ public interface AuthService {
     AuthResponse login(LoginRequest request);
 
     UserResponse getCurrentUser(UserPrincipal principal);
+
+    AuthResponse refreshToken(UserPrincipal principal);
 }
