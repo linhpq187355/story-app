@@ -24,6 +24,10 @@ public class ChapterResponse {
 
     private AccessLevel accessLevel;
 
+    private Long previousChapterId;
+
+    private Long nextChapterId;
+
     private LocalDateTime createdAt;
 
     private LocalDateTime updatedAt;

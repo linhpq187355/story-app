@@ -5,10 +5,13 @@ import com.storyapp.storyapp.dto.request.StoryRequest;
 import com.storyapp.storyapp.dto.response.AudioFileResponse;
 import com.storyapp.storyapp.dto.response.ChapterResponse;
 import com.storyapp.storyapp.dto.response.StoryResponse;
+import com.storyapp.storyapp.enums.StoryStatus;
 import com.storyapp.storyapp.service.ChapterService;
 import com.storyapp.storyapp.service.StoryService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -18,9 +21,15 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.http.MediaType;
+
 
 import java.util.List;
 
@@ -32,15 +41,28 @@ public class AdminStoryController {
     private final StoryService storyService;
     private final ChapterService chapterService;
 
-    @PostMapping
+    @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @ResponseStatus(HttpStatus.CREATED)
-    public StoryResponse createStory(@Valid @RequestBody StoryRequest request) {
-        return storyService.create(request);
+    public StoryResponse createStory(
+            @RequestPart("data") @Valid StoryRequest request,
+            @RequestPart(value = "coverImage", required = false) MultipartFile coverImage
+    ) {
+        return storyService.create(request, coverImage);
     }
 
     @GetMapping
-    public List<StoryResponse> getStories() {
-        return storyService.getAll();
+    public Page<StoryResponse> getStories(
+        @RequestParam(defaultValue = "") String keyword,
+        @RequestParam(required = false) Long genreId,
+        @RequestParam(required = false) Long authorId,
+        @RequestParam(required = false) StoryStatus status,
+        @PageableDefault(
+                size = 10,
+                sort = "createdAt",
+                direction = Sort.Direction.DESC
+        ) Pageable pageable
+    ) {
+        return storyService.getStories(keyword, genreId, authorId, status, pageable);
     }
 
     @GetMapping("/{storyId}")
@@ -48,9 +70,13 @@ public class AdminStoryController {
         return storyService.getById(storyId);
     }
 
-    @PutMapping("/{storyId}")
-    public StoryResponse updateStory(@PathVariable Long storyId, @Valid @RequestBody StoryRequest request) {
-        return storyService.update(storyId, request);
+    @PutMapping(path = "/{storyId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public StoryResponse updateStory(
+            @PathVariable Long storyId,
+            @RequestPart("data") @Valid StoryRequest request,
+            @RequestPart(value = "coverImage", required = false) MultipartFile coverImage
+    ) {
+        return storyService.update(storyId, request, coverImage);
     }
 
     @DeleteMapping("/{storyId}")

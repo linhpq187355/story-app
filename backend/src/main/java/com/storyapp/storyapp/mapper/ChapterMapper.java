@@ -11,6 +11,12 @@ public interface ChapterMapper {
 
     ChapterMapper INSTANCE = Mappers.getMapper(ChapterMapper.class);
 
+    @Mapping(source = "chapter.story.id", target = "storyId")
+    @Mapping(source = "chapter.story.title", target = "storyTitle")
+    @Mapping(source = "previousChapterId", target = "previousChapterId")
+    @Mapping(source = "nextChapterId", target = "nextChapterId")
+    ChapterResponse toResponse(Chapter chapter, Long previousChapterId, Long nextChapterId);
+
     @Mapping(source = "story.id", target = "storyId")
     @Mapping(source = "story.title", target = "storyTitle")
     ChapterResponse toResponse(Chapter chapter);

@@ -121,12 +121,13 @@ export default function RegisterPage() {
         >
           ← Quay về trang chủ
         </button>
-        <div style={{ textAlign: 'center', marginBottom: '2px' }}>
+        <div style={{ marginBottom: '2px' }}>
           <img
             src="/logo.png"
             alt="Logo"
             style={{
               width: '30%',
+              margin: '0 auto',
               borderRadius: '8px',
             }}
           />

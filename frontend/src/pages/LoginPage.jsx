@@ -23,25 +23,32 @@ export default function LoginPage() {
   }
 
   const handleLogin = async (e) => {
-    e.preventDefault()
-    setError('')
-    setLoading(true)
+  e.preventDefault()
+  setError('')
+  setLoading(true)
 
-    try {
-      if (!formData.username || !formData.password) {
-        setError('Vui lòng điền đầy đủ thông tin')
-        setLoading(false)
-        return
-      }
-
-      await authService.login(formData.username, formData.password)
-      navigate('/')
-    } catch (err) {
-      setError(err.message || 'Đăng nhập thất bại')
-    } finally {
-      setLoading(false)
+  try {
+    if (!formData.username || !formData.password) {
+      setError('Vui lòng điền đầy đủ thông tin')
+      return
     }
+
+    const response = await authService.login(
+      formData.username,
+      formData.password
+    )
+
+    if (response.user.role === 'ROLE_ADMIN') {
+      navigate('/admin/stories')
+    } else {
+      navigate('/')
+    }
+  } catch (err) {
+    setError(err.message || 'Đăng nhập thất bại')
+  } finally {
+    setLoading(false)
   }
+}
 
   return (
     <div className="login-container">
@@ -67,12 +74,13 @@ export default function LoginPage() {
           ← Quay về trang chủ
         </button>
         {/* Logo */}
-        <div style={{ textAlign: 'center', marginBottom: '2px' }}>
+        <div style={{ marginBottom: '2px' }}>
           <img
             src="/logo.png"
             alt="Logo"
             style={{
               width: '30%',
+              margin: '0 auto',
               borderRadius: '8px',
             }}
           />

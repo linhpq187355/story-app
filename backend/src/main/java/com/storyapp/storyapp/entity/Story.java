@@ -26,6 +26,15 @@ public class Story extends BaseEntity {
     @Column(columnDefinition = "TEXT")
     private String description;
 
+    @Column(name = "view_count", nullable = false, columnDefinition = "BIGINT DEFAULT 0")
+    private Long viewCount = 0L;
+
+    @Column(name = "views_last_7_days", nullable = false, columnDefinition = "BIGINT DEFAULT 0")
+    private Long viewsLast7Days = 0L;
+
+    @Column(name = "favorites_last_7_days", nullable = false, columnDefinition = "BIGINT DEFAULT 0")
+    private Long favoritesLast7Days = 0L;
+
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private StoryStatus status = StoryStatus.ONGOING;

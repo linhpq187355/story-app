@@ -18,6 +18,12 @@ public class StoryResponse {
 
     private String description;
 
+    private Long viewCount;
+
+    private Long viewsLast7Days;
+
+    private Long favoritesLast7Days;
+
     private StoryStatus status;
 
     private Long authorId;
@@ -27,6 +33,10 @@ public class StoryResponse {
     private Long genreId;
 
     private String genreName;
+
+    private long chapterCount;
+
+    private Long firstChapterId;
 
     private LocalDateTime createdAt;
 

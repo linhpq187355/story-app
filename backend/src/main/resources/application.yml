@@ -3,6 +3,10 @@ spring:
     name: story-app
   profiles:
     default: local
+  servlet:
+    multipart:
+      max-file-size: 50MB
+      max-request-size: 50MB
   datasource:
     url: ${SPRING_DATASOURCE_URL:jdbc:mysql://localhost:3307/story_app?createDatabaseIfNotExist=true&serverTimezone=Asia/Ho_Chi_Minh}
     username: ${MYSQL_USER:story_user}
