@@ -7,7 +7,7 @@ import '../styles/login.css'
 export default function LoginPage() {
   const navigate = useNavigate()
   const [formData, setFormData] = useState({
-    username: '',
+    usernameOrEmail: '',
     password: '',
   })
   const [loading, setLoading] = useState(false)
@@ -23,21 +23,42 @@ export default function LoginPage() {
   }
 
   const handleLogin = async (e) => {
-    e.preventDefault()
+    if (e && e.preventDefault) {
+      e.preventDefault()
+    }
     setError('')
+
+    const val = formData.usernameOrEmail ? formData.usernameOrEmail.trim() : ''
+    const pwd = formData.password ? formData.password.trim() : ''
+
+    if (!val || !pwd) {
+      setError('Vui lòng điền đầy đủ tên đăng nhập/email và mật khẩu')
+      return
+    }
+
+    if (val.includes('@')) {
+      if (val.length > 100) {
+        setError('Email không được vượt quá 100 ký tự')
+        return
+      }
+    } else {
+      if (val.length > 50) {
+        setError('Tên đăng nhập không được vượt quá 50 ký tự')
+        return
+      }
+    }
+
     setLoading(true)
 
     try {
-      if (!formData.username || !formData.password) {
-        setError('Vui lòng điền đầy đủ thông tin')
-        setLoading(false)
-        return
+      const response = await authService.login(val, formData.password)
+      if (response.user.role === 'ROLE_ADMIN') {
+        navigate('/admin/stories')
+      } else {
+        navigate('/')
       }
-
-      await authService.login(formData.username, formData.password)
-      navigate('/')
     } catch (err) {
-      setError(err.message || 'Đăng nhập thất bại')
+      setError(err.response?.data?.message || err.message || 'Tên đăng nhập/email hoặc mật khẩu không chính xác')
     } finally {
       setLoading(false)
     }
@@ -67,12 +88,13 @@ export default function LoginPage() {
           ← Quay về trang chủ
         </button>
         {/* Logo */}
-        <div style={{ textAlign: 'center', marginBottom: '2px' }}>
+        <div style={{ marginBottom: '2px' }}>
           <img
             src="/logo.png"
             alt="Logo"
             style={{
               width: '30%',
+              margin: '0 auto',
               borderRadius: '8px',
             }}
           />

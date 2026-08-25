@@ -1,0 +1,119 @@
+.home-shell {
+  color: #dce8f5;
+}
+
+.panel {
+  background: linear-gradient(180deg, #0f1d36 0%, #0c1830 100%);
+  border: 1px solid #1e3254;
+  border-radius: 0.9rem;
+}
+
+.logo-text {
+  font-family: "Cinzel", Georgia, serif;
+  letter-spacing: 0.04em;
+  color: #e7efff;
+}
+
+.nav-link {
+  border: 1px solid transparent;
+  background: transparent;
+  color: #a8bcd4;
+  padding: 0.4rem 0.8rem;
+  border-radius: 0.5rem;
+  font-size: 0.82rem;
+  transition: all 0.18s ease;
+}
+
+.nav-link:hover {
+  border-color: #2b4674;
+  color: #dce8f5;
+  background: #0d1b33;
+}
+
+.input-field {
+  width: 100%;
+  border: 1px solid #1e3254;
+  background: #0d1b33;
+  color: #dce8f5;
+  padding: 0.65rem 0.85rem;
+  outline: none;
+}
+
+.input-field:focus {
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
+}
+
+.search-btn,
+.btn-primary {
+  background: linear-gradient(135deg, #2563eb, #4f46e5);
+  color: white;
+}
+
+.btn-primary {
+  border: none;
+  font-size: 0.82rem;
+  font-weight: 600;
+}
+
+.gold-label {
+  color: #f5b942;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  font-size: 0.82rem;
+}
+
+.tag {
+  border: 1px solid #2d4b7a;
+  border-radius: 999px;
+  color: #93b6de;
+  font-size: 0.7rem;
+  padding: 0.2rem 0.5rem;
+}
+
+.tag-genre {
+  border: 1px solid #1e3254;
+  background: #0d1b33;
+  color: #9db5d1;
+  border-radius: 999px;
+  padding: 0.35rem 0.7rem;
+  font-size: 0.76rem;
+  transition: all 0.18s ease;
+}
+
+.tag-genre:hover {
+  border-color: #3b82f6;
+  color: #dce8f5;
+}
+
+.tag-genre.active {
+  background: #1d4ed8;
+  border-color: #3b82f6;
+  color: white;
+}
+
+.book-card {
+  background: #0d1b33;
+  border: 1px solid #1e3254;
+  border-radius: 0.8rem;
+  overflow: hidden;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.book-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 24px rgba(11, 32, 66, 0.55);
+}
+
+@media (max-width: 1180px) {
+  .home-layout {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 640px) {
+  .home-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}

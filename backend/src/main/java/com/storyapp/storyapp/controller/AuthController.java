@@ -17,6 +17,11 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.storyapp.storyapp.dto.request.ForgotPasswordRequest;
+import com.storyapp.storyapp.dto.request.VerifyOtpRequest;
+import com.storyapp.storyapp.dto.request.ResetPasswordRequest;
+import java.util.Map;
+
 @RestController
 @RequestMapping("/api/auth")
 @RequiredArgsConstructor
@@ -47,5 +52,23 @@ public class AuthController {
     @GetMapping("/me")
     public UserResponse me(@AuthenticationPrincipal UserPrincipal principal) {
         return authService.getCurrentUser(principal);
+    }
+
+    @PostMapping("/forgot-password")
+    public Map<String, String> forgotPassword(@Valid @RequestBody ForgotPasswordRequest request) {
+        authService.forgotPassword(request);
+        return Map.of("message", "Mã OTP đã được gửi đến email của bạn.");
+    }
+
+    @PostMapping("/verify-otp")
+    public Map<String, String> verifyOtp(@Valid @RequestBody VerifyOtpRequest request) {
+        authService.verifyOtp(request);
+        return Map.of("message", "Mã OTP hợp lệ.");
+    }
+
+    @PostMapping("/reset-password")
+    public Map<String, String> resetPassword(@Valid @RequestBody ResetPasswordRequest request) {
+        authService.resetPassword(request);
+        return Map.of("message", "Mật khẩu đã được đặt lại thành công. Vui lòng đăng nhập bằng mật khẩu mới.");
     }
 }

@@ -40,6 +40,12 @@ public class Chapter extends BaseEntity {
     @Column(nullable = false, length = 20)
     private AccessLevel accessLevel = AccessLevel.PUBLIC;
 
+    @Column(name = "coin_price", nullable = false, columnDefinition = "BIGINT DEFAULT 0")
+    private Long coinPrice = 0L;
+
+    @Column(nullable = false, columnDefinition = "BIGINT DEFAULT 0")
+    private Long viewCount = 0L;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "story_id", nullable = false)
     private Story story;

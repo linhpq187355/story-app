@@ -11,6 +11,7 @@ export default function UsernameInput({ value, onChange, error }) {
           name="username"
           value={value}
           onChange={onChange}
+          maxLength={50}
           placeholder="username"
         />
       </div>

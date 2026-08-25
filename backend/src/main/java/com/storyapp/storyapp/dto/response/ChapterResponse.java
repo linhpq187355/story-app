@@ -22,9 +22,27 @@ public class ChapterResponse {
 
     private String content;
 
+    private String audio;
+
+    private java.util.Map<String, String> audios;
+
     private AccessLevel accessLevel;
+
+    private Long coinPrice;
+
+    private Boolean isPurchased;
+
+    private Boolean isLocked;
+
+    private Long previousChapterId;
+
+    private Long nextChapterId;
+
+    private Long lastPosition;
 
     private LocalDateTime createdAt;
 
     private LocalDateTime updatedAt;
+
+    private Long version;
 }

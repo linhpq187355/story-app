@@ -18,7 +18,17 @@ public class StoryResponse {
 
     private String description;
 
+    private Long viewCount;
+
+    private Long viewsLast7Days;
+
+    private Long favoritesLast7Days;
+
     private StoryStatus status;
+
+    private Long coinPrice;
+
+    private Boolean isPurchased;
 
     private Long authorId;
 
@@ -28,7 +38,15 @@ public class StoryResponse {
 
     private String genreName;
 
+    private long chapterCount;
+
+    private Long firstChapterId;
+
+    private Long latestChapterId;
+
     private LocalDateTime createdAt;
 
     private LocalDateTime updatedAt;
+
+    private Long version;
 }

@@ -11,6 +11,7 @@ export default function EmailInput({ value, onChange, error }) {
           name="email"
           value={value}
           onChange={onChange}
+          maxLength={100}
           placeholder="example@email.com"
         />
       </div>

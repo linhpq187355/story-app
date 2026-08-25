@@ -3,6 +3,8 @@ import EmailInput from './EmailInput'
 import PasswordInput from './PasswordInput'
 import LoginButton from './LoginButton'
 
+const GOOGLE_AUTH_URL = 'http://localhost:8080/oauth2/authorization/google';
+
 export default function LoginForm({ formData, onFormChange, onSubmit, loading, error }) {
   return (
     <>
@@ -11,15 +13,13 @@ export default function LoginForm({ formData, onFormChange, onSubmit, loading, e
 
       {/* Form */}
       <form onSubmit={onSubmit} className="login-form">
-        <EmailInput value={formData.username} onChange={onFormChange} />
+        <EmailInput value={formData.usernameOrEmail} onChange={onFormChange} />
 
         <PasswordInput value={formData.password} onChange={onFormChange} />
 
         {/* Remember & Forgot */}
         <div className="form-footer">
           <div className="remember-me">
-            <input type="checkbox" id="remember" />
-            <label htmlFor="remember">Ghi nhớ tôi</label>
           </div>
           <Link to="/forgot-password" className="forgot-password">
             Quên mật khẩu?
@@ -37,7 +37,9 @@ export default function LoginForm({ formData, onFormChange, onSubmit, loading, e
       </div>
 
       {/* Social Login Button */}
-      <button className="social-button">Đăng nhập với Google</button>
+      <a href={GOOGLE_AUTH_URL} className="social-button">
+        Đăng nhập với Google
+      </a>
 
       {/* Register Link */}
       <div className="register-section">

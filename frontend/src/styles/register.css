@@ -237,6 +237,11 @@
 /* Social Register Button */
 .social-button {
   width: 100%;
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
   background: #0f1f35;
   border: 1px solid #1e3254;
   border-radius: 8px;
