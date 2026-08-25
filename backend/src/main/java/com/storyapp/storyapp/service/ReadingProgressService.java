@@ -8,14 +8,7 @@ import java.util.Optional;
 
 public interface ReadingProgressService {
 
-    void updateProgress(
-            Long chapterId,
-            Long lastPosition
-    );
+    void updateProgress(Long chapterId, Long lastPosition);
 
-    /*Optional<ReadingProgressResponse> getProgressForStory(
-            Long storyId
-    );
-
-    List<StoryResponse> getRecentlyReadStories();*/
+    Optional<ReadingProgressResponse> getProgressForChapter(Long chapterId);
 }

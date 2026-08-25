@@ -4,6 +4,8 @@ import com.storyapp.storyapp.dto.response.HomeHotStoryResponse;
 import com.storyapp.storyapp.dto.response.HomePageResponse;
 import com.storyapp.storyapp.dto.response.HomeRecentlyReadResponse;
 import com.storyapp.storyapp.dto.response.HomeUpdatingStoryResponse;
+import com.storyapp.storyapp.dto.response.RankItemResponse;
+import com.storyapp.storyapp.dto.response.RankingsResponse;
 import com.storyapp.storyapp.entity.Chapter;
 import com.storyapp.storyapp.entity.Story;
 import com.storyapp.storyapp.enums.StoryStatus;
@@ -69,11 +71,71 @@ public class HomeServiceImpl implements HomeService {
                         .map(this::toUpdatingStoryResponse)
                         .toList();
 
+        RankingsResponse rankings = RankingsResponse.builder()
+                .topRated(getTopRatedRankings())
+                .topFollowed(getTopFollowedRankings())
+                .topViewed(getTopViewedRankings())
+                .build();
+
         return HomePageResponse.builder()
                 .recentlyRead(recentlyRead)
                 .hotStories(hotStoryResponses)
                 .updatingStories(updatingStoryResponses)
+                .rankings(rankings)
                 .build();
+    }
+
+    private List<RankItemResponse> getTopRatedRankings() {
+        List<Object[]> rows = storyRepository.findTopRatedStories(PageRequest.of(0, 10));
+        AtomicInteger rank = new AtomicInteger(1);
+        return rows.stream().map(row -> {
+            Story s = (Story) row[0];
+            Double avg = (Double) row[1];
+            String val = String.format("%.1f ★", avg != null ? avg : 0.0);
+            return RankItemResponse.builder()
+                    .id(s.getId())
+                    .rank(rank.getAndIncrement())
+                    .title(s.getTitle())
+                    .authorName(s.getAuthor() != null ? s.getAuthor().getName() : "Đang cập nhật")
+                    .coverImageUrl(s.getCoverImageUrl())
+                    .formattedValue(val)
+                    .build();
+        }).toList();
+    }
+
+    private List<RankItemResponse> getTopFollowedRankings() {
+        List<Object[]> rows = storyRepository.findTopFollowedStories(PageRequest.of(0, 10));
+        AtomicInteger rank = new AtomicInteger(1);
+        return rows.stream().map(row -> {
+            Story s = (Story) row[0];
+            Long count = (Long) row[1];
+            String val = String.format("%,d lượt", count != null ? count : 0);
+            return RankItemResponse.builder()
+                    .id(s.getId())
+                    .rank(rank.getAndIncrement())
+                    .title(s.getTitle())
+                    .authorName(s.getAuthor() != null ? s.getAuthor().getName() : "Đang cập nhật")
+                    .coverImageUrl(s.getCoverImageUrl())
+                    .formattedValue(val)
+                    .build();
+        }).toList();
+    }
+
+    private List<RankItemResponse> getTopViewedRankings() {
+        List<Story> stories = storyRepository.findTopViewedStories(PageRequest.of(0, 10));
+        AtomicInteger rank = new AtomicInteger(1);
+        return stories.stream().map(s -> {
+            Long count = s.getViewCount() != null ? s.getViewCount() : 0L;
+            String val = String.format("%,d lượt", count);
+            return RankItemResponse.builder()
+                    .id(s.getId())
+                    .rank(rank.getAndIncrement())
+                    .title(s.getTitle())
+                    .authorName(s.getAuthor() != null ? s.getAuthor().getName() : "Đang cập nhật")
+                    .coverImageUrl(s.getCoverImageUrl())
+                    .formattedValue(val)
+                    .build();
+        }).toList();
     }
 
     /**

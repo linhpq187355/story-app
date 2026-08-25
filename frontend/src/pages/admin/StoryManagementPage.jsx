@@ -45,6 +45,7 @@ export default function StoryManagementPage() {
         author: item.authorName || 'Chưa rõ',
         category: item.genreName || 'Chưa phân loại',
         viewCount: item.viewCount ?? 0,
+        coinPrice: item.coinPrice ?? 0,
         status: item.status || 'ONGOING',
         isVip: false,
         totalChapters: 0,

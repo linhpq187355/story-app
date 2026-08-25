@@ -57,16 +57,20 @@ public interface ReadingProgressRepository
         s.id AS id,
         s.title AS title,
         s.cover_image AS coverImage,
+        s.cover_image AS cover_image,
         s.description AS description,
         s.status AS status,
         a.name AS authorName,
-        g.name AS genreName
+        a.name AS author_name,
+        g.name AS genreName,
+        g.name AS genre_name
     FROM reading_progress rp
     JOIN chapters c ON c.id = rp.chapter_id
     JOIN stories s ON s.id = c.story_id
     JOIN authors a ON a.id = s.author_id
     JOIN genres g ON g.id = s.genre_id
     WHERE rp.user_id = :userId
+      AND s.is_deleted = false
       AND rp.id = (
           SELECT rp2.id
           FROM reading_progress rp2

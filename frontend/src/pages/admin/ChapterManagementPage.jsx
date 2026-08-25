@@ -32,6 +32,7 @@ const EMPTY_FORM = {
   chapterNumber: '',
   content: '',
   accessLevel: 'PUBLIC',
+  coinPrice: 0,
 }
 
 function formatDate(isoString) {
@@ -143,6 +144,8 @@ export default function ChapterManagementPage() {
       chapterNumber: chapter.chapterNumber != null ? String(chapter.chapterNumber) : '',
       content: chapter.content || '',
       accessLevel: chapter.accessLevel || 'PUBLIC',
+      coinPrice: chapter.coinPrice != null ? chapter.coinPrice : 0,
+      version: chapter.version != null ? chapter.version : null,
     })
     setEditingChapterId(chapter.id)
     setAudioFile(null)
@@ -176,6 +179,8 @@ export default function ChapterManagementPage() {
         chapterNumber: Number(form.chapterNumber),
         content: form.content,
         accessLevel: form.accessLevel,
+        coinPrice: form.accessLevel === 'VIP' ? Number(form.coinPrice) || 0 : 0,
+        version: form.version,
       }
 
       let chapterResponse
@@ -202,11 +207,14 @@ export default function ChapterManagementPage() {
           : 'Chương mới đã được tạo thành công.',
       })
     } catch (error) {
-      const message = error?.response?.data?.message || 'Lưu chương thất bại. Vui lòng thử lại.'
+      let message = error?.response?.data?.message || 'Lưu chương thất bại. Vui lòng thử lại.'
+      if (error?.response?.status === 409 || error?.response?.data?.code === 'CONCURRENCY_CONFLICT') {
+        message = 'Chương này vừa được cập nhật bởi một Admin khác. Vui lòng tải lại trang để lấy dữ liệu mới nhất!'
+      }
       setFormError(message)
       setNotice({
         type: 'error',
-        title: 'Lưu chương thất bại',
+        title: 'Xung đột dữ liệu / Lưu thất bại',
         message,
       })
     } finally {
@@ -439,6 +447,28 @@ export default function ChapterManagementPage() {
               <p className="text-red-400 text-sm">{fieldErrors.accessLevel}</p>
             )}
           </fieldset>
+
+          {/* Giá Xu mua lẻ cho VIP */}
+          {form.accessLevel === 'VIP' && (
+            <div className="space-y-2 bg-purple-950/40 border border-purple-500/30 p-4 rounded-xl">
+              <label htmlFor="coinPrice" className="font-mono text-sm text-purple-300 font-semibold block">
+                🪙 Giá Xu đọc lẻ chương VIP này (Nhập 0 nếu chỉ cho phép gói VIP)
+              </label>
+              <input
+                id="coinPrice"
+                name="coinPrice"
+                type="number"
+                min={0}
+                value={form.coinPrice ?? 0}
+                onChange={handleChange}
+                placeholder="Ví dụ: 5"
+                className="w-full bg-slate-950 border border-slate-700 rounded-lg px-4 py-2.5 text-purple-300 font-mono text-base font-bold focus:border-purple-400 focus:outline-none"
+              />
+              <p className="text-xs text-slate-400">
+                Người dùng không có Gói VIP active có thể dùng số xu này để mua riêng chương này.
+              </p>
+            </div>
+          )}
 
           {/* Content */}
           <div className="space-y-2">

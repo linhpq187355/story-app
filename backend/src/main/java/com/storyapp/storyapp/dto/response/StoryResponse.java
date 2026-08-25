@@ -26,6 +26,10 @@ public class StoryResponse {
 
     private StoryStatus status;
 
+    private Long coinPrice;
+
+    private Boolean isPurchased;
+
     private Long authorId;
 
     private String authorName;
@@ -38,7 +42,11 @@ public class StoryResponse {
 
     private Long firstChapterId;
 
+    private Long latestChapterId;
+
     private LocalDateTime createdAt;
 
     private LocalDateTime updatedAt;
+
+    private Long version;
 }

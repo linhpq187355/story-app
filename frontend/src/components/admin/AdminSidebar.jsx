@@ -12,6 +12,16 @@ const ADMIN_NAV_ITEMS = [
     icon: 'category',
     path: '/admin/categories',
   },
+  {
+    label: 'Quản lý VIP',
+    icon: 'workspace_premium',
+    path: '/admin/vip',
+  },
+  {
+    label: 'Từ cấm & Bình luận',
+    icon: 'block',
+    path: '/admin/banned-words',
+  },
 ]
 
 export default function AdminSidebar({ isOpen, onClose }) {

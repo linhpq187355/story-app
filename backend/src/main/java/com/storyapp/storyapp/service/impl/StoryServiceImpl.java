@@ -2,6 +2,8 @@ package com.storyapp.storyapp.service.impl;
 
 import com.storyapp.storyapp.dto.request.StoryRequest;
 import com.storyapp.storyapp.dto.response.StoryResponse;
+import com.storyapp.storyapp.dto.response.StorySummaryResponse;
+import com.storyapp.storyapp.entity.Chapter;
 import com.storyapp.storyapp.entity.Story;
 import com.storyapp.storyapp.enums.StoryStatus;
 import com.storyapp.storyapp.exception.ResourceNotFoundException;
@@ -10,14 +12,19 @@ import com.storyapp.storyapp.repository.AuthorRepository;
 import com.storyapp.storyapp.repository.ChapterRepository;
 import com.storyapp.storyapp.repository.GenreRepository;
 import com.storyapp.storyapp.repository.StoryRepository;
-import com.storyapp.storyapp.repository.UserRepository;
+import com.storyapp.storyapp.repository.StorySpecification;
+import com.storyapp.storyapp.service.CloudinaryService;
 import com.storyapp.storyapp.service.StoryService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.http.HttpStatus;
+import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.server.ResponseStatusException;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -34,6 +41,8 @@ public class StoryServiceImpl implements StoryService {
     private final GenreRepository genreRepository;
     private final ChapterRepository chapterRepository;
     private final StoryMapper storyMapper;
+    private final CloudinaryService cloudinaryService;
+    private final StorySpecification storySpecification;
     private final String UPLOAD_DIR = "uploads/covers/";
 
     @Override
@@ -46,29 +55,26 @@ public class StoryServiceImpl implements StoryService {
         Story story = new Story();
         applyRequest(story, request);
         Story savedStory = storyRepository.save(story);
-        return storyMapper.toResponse(savedStory, 0, null);
+        return storyMapper.toResponse(savedStory, 0, null, null);
     }
 
     @Override
     @Transactional(readOnly = true)
-    public Page<StoryResponse> getStories(
+    public Page<StorySummaryResponse> getStories(
         String keyword,
         Long genreId,
         Long authorId,
         StoryStatus status,
         Pageable pageable
     ) {
-        return storyRepository.searchStories(
-            keyword,
-            genreId,
-            authorId,
-            status,
-            pageable
-        ).map(story -> {
-            long chapterCount = chapterRepository.countByStoryId(story.getId());
-            Long firstChapterId = chapterRepository.findFirstChapterId(story.getId()).orElse(null);
-            return storyMapper.toResponse(story, chapterCount, firstChapterId);
-        });
+        Specification<Story> spec = Specification.where(storySpecification.withFetchJoin())
+                .and(storySpecification.hasTitleOrAuthor(keyword))
+                .and(storySpecification.hasGenre(genreId))
+                .and(storySpecification.hasAuthor(authorId))
+                .and(storySpecification.hasStatus(status));
+
+        return storyRepository.findAll(spec, pageable)
+                .map(storyMapper::toSummaryResponse);
     }
 
     @Override
@@ -77,12 +83,18 @@ public class StoryServiceImpl implements StoryService {
         Story story = findStory(id);
         long count = chapterRepository.countByStoryId(id);
         Long firstChapterId = chapterRepository.findFirstChapterId(id).orElse(null);
-        return storyMapper.toResponse(story, count, firstChapterId);
+        Long latestChapterId = chapterRepository.findTopByStoryIdOrderByChapterNumberDesc(id).map(Chapter::getId).orElse(null);
+        return storyMapper.toResponse(story, count, firstChapterId, latestChapterId);
     }
 
     @Override
     public StoryResponse update(Long id, StoryRequest request, MultipartFile coverImage) {
         Story story = findStory(id);
+
+        if (request.getVersion() != null && story.getVersion() != null && story.getVersion() > 0 
+                && !request.getVersion().equals(story.getVersion())) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "Truyện này đã được cập nhật bởi một Admin khác. Vui lòng tải lại trang và thử lại.");
+        }
 
         if (coverImage != null && !coverImage.isEmpty()) {
             String imageUrl = uploadFile(coverImage);
@@ -95,15 +107,15 @@ public class StoryServiceImpl implements StoryService {
         Story updatedStory = storyRepository.save(story);
         long count = chapterRepository.countByStoryId(id);
         Long firstChapterId = chapterRepository.findFirstChapterId(id).orElse(null);
-        return storyMapper.toResponse(updatedStory, count, firstChapterId);
+        return storyMapper.toResponse(updatedStory, count, firstChapterId, null);
     }
 
     @Override
     public void delete(Long id) {
-        if (!storyRepository.existsById(id)) {
-            throw new ResourceNotFoundException("Story", "id", id);
-        }
-        storyRepository.deleteById(id);
+        Story story = storyRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Story", "id", id));
+        story.setIsDeleted(true);
+        storyRepository.save(story);
     }
 
     @Override
@@ -112,7 +124,7 @@ public class StoryServiceImpl implements StoryService {
         Story story = findStory(storyId);
         long count = chapterRepository.countByStoryId(storyId);
         Long firstChapterId = chapterRepository.findFirstChapterId(storyId).orElse(null);
-        return storyMapper.toResponse(story, count, firstChapterId);
+        return storyMapper.toResponse(story, count, firstChapterId, null);
     }
 
     private void applyRequest(Story story, StoryRequest request) {
@@ -120,6 +132,7 @@ public class StoryServiceImpl implements StoryService {
         story.setCoverImageUrl(trimToNull(request.getCoverImageUrl()));
         story.setDescription(trimToNull(request.getDescription()));
         story.setStatus(request.getStatus());
+        story.setCoinPrice(request.getCoinPrice() != null ? request.getCoinPrice() : 0L);
 
         story.setAuthor(
                 authorRepository.findById(request.getAuthorId())
@@ -153,6 +166,13 @@ public class StoryServiceImpl implements StoryService {
     }
 
     private String uploadFile(MultipartFile file) {
+        if (cloudinaryService.isConfigured()) {
+            String cloudinaryUrl = cloudinaryService.uploadImage(file, "covers");
+            if (StringUtils.hasText(cloudinaryUrl)) {
+                return cloudinaryUrl;
+            }
+        }
+
         try {
             Path uploadPath = Paths.get(UPLOAD_DIR);
             if (!Files.exists(uploadPath)) {

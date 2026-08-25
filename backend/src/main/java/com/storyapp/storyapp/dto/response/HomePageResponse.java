@@ -16,4 +16,6 @@ public class HomePageResponse {
     private List<HomeHotStoryResponse> hotStories;
 
     private List<HomeUpdatingStoryResponse> updatingStories;
+
+    private RankingsResponse rankings;
 }

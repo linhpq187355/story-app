@@ -24,4 +24,8 @@ public class StoryRequest {
     private String description;
 
     private StoryStatus status = StoryStatus.ONGOING;
+
+    private Long coinPrice = 0L;
+
+    private Long version;
 }

@@ -15,6 +15,8 @@ const EMPTY_FORM = {
   genreId: '',
   description: '',
   status: 'ONGOING',
+  coinPrice: 0,
+  version: null,
 }
 
 export default function StoryFormPage() {
@@ -64,6 +66,8 @@ export default function StoryFormPage() {
         genreId: story.genreId != null ? String(story.genreId) : '',
         description: story.description || '',
         status: story.status || 'ONGOING',
+        coinPrice: story.coinPrice != null ? story.coinPrice : 0,
+        version: story.version != null ? story.version : null,
       })
 
       // Set link ảnh cũ (từ DB) để hiển thị preview
@@ -119,6 +123,8 @@ export default function StoryFormPage() {
         genreId: Number(formData.genreId),
         description: formData.description,
         status: formData.status,
+        coinPrice: Number(formData.coinPrice) || 0,
+        version: formData.version,
       }
 
       // 3. Nén JSON thành Blob và đưa vào field "data" (Khớp với @RequestPart("data") bên Spring Boot)
@@ -140,8 +146,11 @@ export default function StoryFormPage() {
 
       navigate('/admin/stories')
     } catch (error) {
-      const message = error?.response?.data?.message || 'Có lỗi xảy ra khi lưu truyện. Vui lòng kiểm tra lại!'
-      setFormError(message)
+      if (error.response?.status === 409 || error.response?.data?.code === 'CONCURRENCY_CONFLICT') {
+        setFormError(error.response?.data?.message || 'Truyện này đã được cập nhật bởi một Admin khác. Vui lòng tải lại trang để lấy dữ liệu mới nhất!');
+      } else {
+        setFormError(error.response?.data?.message || 'Có lỗi xảy ra khi lưu thông tin truyện!');
+      }
     } finally {
       setIsSubmitting(false)
     }

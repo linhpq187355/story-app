@@ -15,4 +15,10 @@ public interface AuthService {
     UserResponse getCurrentUser(UserPrincipal principal);
 
     AuthResponse refreshToken(UserPrincipal principal);
+
+    void forgotPassword(com.storyapp.storyapp.dto.request.ForgotPasswordRequest request);
+
+    void verifyOtp(com.storyapp.storyapp.dto.request.VerifyOtpRequest request);
+
+    void resetPassword(com.storyapp.storyapp.dto.request.ResetPasswordRequest request);
 }

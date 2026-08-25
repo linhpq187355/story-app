@@ -23,9 +23,12 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
+import lombok.extern.slf4j.Slf4j;
+
 @Service
 @RequiredArgsConstructor
 @Transactional
+@Slf4j
 public class ReadingProgressServiceImpl implements ReadingProgressService {
 
     private final ReadingProgressRepository readingProgressRepository;
@@ -35,74 +38,42 @@ public class ReadingProgressServiceImpl implements ReadingProgressService {
 
     @Override
     public void updateProgress(Long chapterId, Long lastPosition) {
-
         User user = getCurrentUser();
 
         Chapter chapter = chapterRepository.findById(chapterId)
-                .orElseThrow(() ->
-                        new ResourceNotFoundException(
-                                "Chapter",
-                                "id",
-                                chapterId
-                        )
-                );
+                .orElseThrow(() -> new ResourceNotFoundException("Chapter", "id", chapterId));
 
         if (lastPosition == null || lastPosition < 0) {
             lastPosition = 0L;
         }
 
-        ReadingProgress progress =
-                readingProgressRepository
-                        .findByUserIdAndChapterId(
-                                user.getId(),
-                                chapterId
-                        )
-                        .orElseGet(() -> {
-                            ReadingProgress newProgress =
-                                    new ReadingProgress();
-
-                            newProgress.setUser(user);
-                            newProgress.setChapter(chapter);
-
-                            return newProgress;
-                        });
+        ReadingProgress progress = readingProgressRepository
+                .findByUserIdAndChapterId(user.getId(), chapterId)
+                .orElseGet(() -> {
+                    ReadingProgress newProgress = new ReadingProgress();
+                    newProgress.setUser(user);
+                    newProgress.setChapter(chapter);
+                    return newProgress;
+                });
 
         progress.setLastPosition(lastPosition);
         progress.setUpdatedAt(LocalDateTime.now());
 
         readingProgressRepository.save(progress);
+        log.info("Saved reading progress into DB: userId={}, chapterId={}, lastPosition={}s", user.getId(), chapterId, lastPosition);
     }
 
-    /*@Override
+    @Override
     @Transactional(readOnly = true)
-    public Optional<ReadingProgressResponse> getProgressForStory(
-            Long storyId
-    ) {
-
+    public Optional<ReadingProgressResponse> getProgressForChapter(Long chapterId) {
         User user = getCurrentUser();
-
-        return readingProgressRepository
-                .findByUserIdAndStoryIdOrderByUpdatedAtDesc(
-                        user.getId(),
-                        storyId
-                )
-                .stream()
-                .findFirst()
-                .map(progress ->
-                        ReadingProgressResponse.builder()
-                                .chapterId(
-                                        progress.getChapter().getId()
-                                )
-                                .chapterNumber(
-                                        progress.getChapter()
-                                                .getChapterNumber()
-                                )
-                                .lastPosition(
-                                        progress.getLastPosition()
-                                )
-                                .build()
-                );
-    }*/
+        return readingProgressRepository.findByUserIdAndChapterId(user.getId(), chapterId)
+                .map(progress -> ReadingProgressResponse.builder()
+                        .lastReadChapterId(progress.getChapter().getId())
+                        .lastReadChapterNumber(progress.getChapter().getChapterNumber())
+                        .lastPosition(progress.getLastPosition())
+                        .build());
+    }
 
     /*@Override
     @Transactional(readOnly = true)

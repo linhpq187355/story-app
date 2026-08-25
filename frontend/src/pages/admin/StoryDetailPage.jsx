@@ -143,6 +143,18 @@ export default function StoryDetailPage() {
             </div>
 
             <div>
+              <p className="font-mono text-[10px] uppercase tracking-wider text-slate-400">Giá mua trọn bộ (Xu)</p>
+              <p className="mt-2 text-xl font-bold text-amber-400 flex items-center gap-1.5">
+                <span className="text-lg">🪙</span>
+                {story.coinPrice > 0 ? (
+                  <span>{story.coinPrice.toLocaleString('vi-VN')} Xu</span>
+                ) : (
+                  <span className="text-slate-300 font-medium text-base">Miễn phí (0 Xu)</span>
+                )}
+              </p>
+            </div>
+
+            <div>
               <p className="font-mono text-[10px] uppercase tracking-wider text-slate-400">Số chương</p>
               <p className="mt-2 text-xl font-bold text-slate-100">{chapters.length}</p>
             </div>

@@ -34,4 +34,8 @@ public interface ChapterService {
     ChapterResponse getPublicChapter(Long storyId, Long chapterId);
 
     Map<String, Boolean> recordView(Long chapterId);
+
+    AudioFileResponse synthesizeAndSaveAudio(Long storyId, Long chapterId);
+
+    com.storyapp.storyapp.dto.response.ChapterAudioResponse synthesizeAndSaveAudio(Long storyId, Long chapterId, com.storyapp.storyapp.enums.VoiceGender voiceGender);
 }

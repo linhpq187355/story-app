@@ -2,6 +2,7 @@ package com.storyapp.storyapp.service;
 
 import com.storyapp.storyapp.dto.request.StoryRequest;
 import com.storyapp.storyapp.dto.response.StoryResponse;
+import com.storyapp.storyapp.dto.response.StorySummaryResponse;
 import com.storyapp.storyapp.enums.StoryStatus;
 
 import org.springframework.data.domain.Page;
@@ -15,7 +16,7 @@ public interface StoryService {
 
     StoryResponse create(StoryRequest request, MultipartFile coverImage);
 
-    Page<StoryResponse> getStories(
+    Page<StorySummaryResponse> getStories(
         String keyword,
         Long genreId,
         Long authorId,

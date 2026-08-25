@@ -15,6 +15,10 @@ public abstract class BaseEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Version
+    @Column(columnDefinition = "BIGINT DEFAULT 0")
+    private Long version = 0L;
+
     @Column(nullable = false, updatable = false)
     protected LocalDateTime createdAt;
 
@@ -25,11 +29,24 @@ public abstract class BaseEntity {
     public void prePersist() {
         createdAt = LocalDateTime.now();
         updatedAt = createdAt;
+        if (version == null) {
+            version = 0L;
+        }
     }
 
     @PreUpdate
     public void preUpdate() {
         updatedAt = LocalDateTime.now();
+        if (version == null) {
+            version = 0L;
+        }
+    }
+
+    @PostLoad
+    public void postLoad() {
+        if (version == null) {
+            version = 0L;
+        }
     }
 
 }

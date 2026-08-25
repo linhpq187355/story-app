@@ -58,6 +58,11 @@ export default function StoryTableRow({ story, onEdit, onDelete, onManageChapter
                 VIP
               </span>
             )}
+            {story.coinPrice > 0 && (
+              <span className="px-1.5 py-0.5 rounded text-[10px] font-bold bg-amber-500/20 text-amber-400 border border-amber-500/30 flex items-center gap-0.5">
+                🪙 {story.coinPrice} Xu
+              </span>
+            )}
             {story.totalChapters > 0 && (
               <span className="font-mono text-[10px] font-semibold text-slate-400">
                 Chương: {story.totalChapters}

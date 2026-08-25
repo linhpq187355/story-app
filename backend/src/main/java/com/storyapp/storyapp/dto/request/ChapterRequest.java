@@ -25,4 +25,8 @@ public class ChapterRequest {
 
     @NotNull(message = "Access level is required")
     private AccessLevel accessLevel = AccessLevel.PUBLIC;
+
+    private Long coinPrice = 0L;
+
+    private Long version;
 }

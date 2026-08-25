@@ -133,6 +133,29 @@ export default function BasicInfoSection({
           </label>
         </div>
       </fieldset>
+
+      {/* Giá Xu mua trọn bộ truyện */}
+      <div className="space-y-2 pt-2 border-t border-slate-700">
+        <label
+          htmlFor="coinPrice"
+          className="font-mono text-sm text-amber-400 block font-semibold"
+        >
+          🪙 Giá Xu mở trọn bộ truyện (Nhập 0 nếu không bán trọn bộ)
+        </label>
+        <input
+          id="coinPrice"
+          name="coinPrice"
+          type="number"
+          min={0}
+          value={formData.coinPrice ?? 0}
+          onChange={onChange}
+          placeholder="Ví dụ: 50"
+          className="w-full bg-slate-900 border border-slate-700 rounded-lg px-4 py-3 text-amber-400 font-mono font-bold text-lg focus:border-amber-400 focus:outline-none"
+        />
+        <p className="text-xs text-slate-400">
+          Người dùng có thể dùng số xu này để mua quyền đọc toàn bộ các chương của truyện này.
+        </p>
+      </div>
     </section>
   );
 }

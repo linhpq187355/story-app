@@ -7,31 +7,22 @@ import com.storyapp.storyapp.repository.projection.LatestChapterProjection;
 import com.storyapp.storyapp.repository.projection.StoryWithLatestChapterProjection;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import java.util.List;
 
-public interface StoryRepository extends JpaRepository<Story, Long> {
+public interface StoryRepository extends JpaRepository<Story, Long>, JpaSpecificationExecutor<Story> {
 
+    @Override
     @EntityGraph(attributePaths = {"author", "genre"})
-    @Query("""
-    SELECT s
-    FROM Story s
-    WHERE
-    (:keyword = '' OR LOWER(s.title) LIKE LOWER(CONCAT('%', :keyword, '%')))
-    AND (:genreId IS NULL OR s.genre.id = :genreId)
-    AND (:authorId IS NULL OR s.author.id = :authorId)
-    AND (:status IS NULL OR s.status = :status)
-    """)
-    Page<Story> searchStories(
-        @Param("keyword") String keyword,
-        @Param("genreId") Long genreId,
-        @Param("authorId") Long authorId,
-        @Param("status") StoryStatus status,
-        Pageable pageable
+    Page<Story> findAll(
+            Specification<Story> spec,
+            Pageable pageable
     );
 
     @EntityGraph(attributePaths = {"author", "genre"})
@@ -42,6 +33,34 @@ public interface StoryRepository extends JpaRepository<Story, Long> {
              s.updatedAt DESC
     """)
     Page<Story> findHotStories(Pageable pageable);
+
+    @EntityGraph(attributePaths = {"author", "genre"})
+    @Query("""
+    SELECT s, COALESCE(AVG(r.rating), 0) as avgRating
+    FROM Story s
+    LEFT JOIN StoryRating r ON r.story = s
+    GROUP BY s
+    ORDER BY COALESCE(AVG(r.rating), 0) DESC, COUNT(r) DESC, s.id DESC
+    """)
+    List<Object[]> findTopRatedStories(Pageable pageable);
+
+    @EntityGraph(attributePaths = {"author", "genre"})
+    @Query("""
+    SELECT s, COUNT(f) as favCount
+    FROM Story s
+    LEFT JOIN FavoriteStory f ON f.story = s
+    GROUP BY s
+    ORDER BY COUNT(f) DESC, COALESCE(s.viewCount, 0) DESC, s.id DESC
+    """)
+    List<Object[]> findTopFollowedStories(Pageable pageable);
+
+    @EntityGraph(attributePaths = {"author", "genre"})
+    @Query("""
+    SELECT s
+    FROM Story s
+    ORDER BY COALESCE(s.viewCount, 0) DESC, s.id DESC
+    """)
+    List<Story> findTopViewedStories(Pageable pageable);
 
     @EntityGraph(attributePaths = {"author", "genre"})
     @Query("""
@@ -84,6 +103,8 @@ public interface StoryRepository extends JpaRepository<Story, Long> {
             ORDER BY c2.created_at DESC, c2.id DESC
             LIMIT 1
         )
+
+    WHERE s.is_deleted = false
 
     ORDER BY
         COALESCE(c.created_at, s.created_at) DESC,

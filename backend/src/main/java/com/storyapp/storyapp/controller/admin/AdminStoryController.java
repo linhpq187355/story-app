@@ -5,6 +5,7 @@ import com.storyapp.storyapp.dto.request.StoryRequest;
 import com.storyapp.storyapp.dto.response.AudioFileResponse;
 import com.storyapp.storyapp.dto.response.ChapterResponse;
 import com.storyapp.storyapp.dto.response.StoryResponse;
+import com.storyapp.storyapp.dto.response.StorySummaryResponse;
 import com.storyapp.storyapp.enums.StoryStatus;
 import com.storyapp.storyapp.service.ChapterService;
 import com.storyapp.storyapp.service.StoryService;
@@ -51,7 +52,7 @@ public class AdminStoryController {
     }
 
     @GetMapping
-    public Page<StoryResponse> getStories(
+    public Page<StorySummaryResponse> getStories(
         @RequestParam(defaultValue = "") String keyword,
         @RequestParam(required = false) Long genreId,
         @RequestParam(required = false) Long authorId,

@@ -41,6 +41,8 @@ export default function RegisterPage() {
       errors.email = 'Email là bắt buộc'
     } else if (!emailRegex.test(formData.email)) {
       errors.email = 'Email không hợp lệ'
+    } else if (formData.email.length > 100) {
+      errors.email = 'Email không được vượt quá 100 ký tự'
     }
 
     // Validate username
@@ -48,13 +50,18 @@ export default function RegisterPage() {
       errors.username = 'Tên đăng nhập là bắt buộc'
     } else if (formData.username.length < 3) {
       errors.username = 'Tên đăng nhập phải có ít nhất 3 ký tự'
+    } else if (formData.username.length > 50) {
+      errors.username = 'Tên đăng nhập không được vượt quá 50 ký tự'
     }
 
-    // Validate password
+    // Validate password: min 8 chars, contains uppercase, lowercase, and digit
+    const passwordComplexityRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/
     if (!formData.password) {
       errors.password = 'Mật khẩu là bắt buộc'
-    } else if (formData.password.length < 6) {
-      errors.password = 'Mật khẩu phải có ít nhất 6 ký tự'
+    } else if (formData.password.length < 8) {
+      errors.password = 'Mật khẩu phải có ít nhất 8 ký tự'
+    } else if (!passwordComplexityRegex.test(formData.password)) {
+      errors.password = 'Mật khẩu phải chứa ít nhất một chữ hoa, một chữ thường và một chữ số'
     }
 
     // Validate confirm password
@@ -82,17 +89,17 @@ export default function RegisterPage() {
     }
 
     try {
-      // Call register service
-      await authService.register(
-        formData.email,
-        formData.username,
-        formData.password,
-        formData.passwordConfirm
-      )
+      // Call register service with correct object payload
+      await authService.register({
+        username: formData.username,
+        email: formData.email,
+        password: formData.password,
+        passwordConfirm: formData.passwordConfirm,
+      })
       // Redirect to login page after successful registration
       navigate('/login')
     } catch (err) {
-      setError(err.message || 'Đăng ký thất bại')
+      setError(err.response?.data?.message || err.message || 'Đăng ký thất bại')
     } finally {
       setLoading(false)
     }

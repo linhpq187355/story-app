@@ -20,9 +20,9 @@ public interface ChapterRepository extends JpaRepository<Chapter, Long> {
 
     boolean existsByStoryIdAndChapterNumber(Long storyId, Integer chapterNumber);
 
-    Optional<Chapter> findTopByStoryIdOrderByCreatedAtDesc(Long storyId);
-
     long countByStoryId(Long storyId);
+
+    Optional<Chapter> findTopByStoryIdOrderByChapterNumberDesc(Long storyId);
 
     @Query("SELECT c.id FROM Chapter c WHERE c.story.id = :storyId AND c.chapterNumber < :chapterNumber ORDER BY c.chapterNumber DESC LIMIT 1")
     Optional<Long> findPreviousChapterId(@Param("storyId") Long storyId, @Param("chapterNumber") Integer chapterNumber);

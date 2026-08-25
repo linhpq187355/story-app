@@ -7,7 +7,7 @@ import '../styles/login.css'
 export default function LoginPage() {
   const navigate = useNavigate()
   const [formData, setFormData] = useState({
-    username: '',
+    usernameOrEmail: '',
     password: '',
   })
   const [loading, setLoading] = useState(false)
@@ -23,32 +23,46 @@ export default function LoginPage() {
   }
 
   const handleLogin = async (e) => {
-  e.preventDefault()
-  setError('')
-  setLoading(true)
+    if (e && e.preventDefault) {
+      e.preventDefault()
+    }
+    setError('')
 
-  try {
-    if (!formData.username || !formData.password) {
-      setError('Vui lòng điền đầy đủ thông tin')
+    const val = formData.usernameOrEmail ? formData.usernameOrEmail.trim() : ''
+    const pwd = formData.password ? formData.password.trim() : ''
+
+    if (!val || !pwd) {
+      setError('Vui lòng điền đầy đủ tên đăng nhập/email và mật khẩu')
       return
     }
 
-    const response = await authService.login(
-      formData.username,
-      formData.password
-    )
-
-    if (response.user.role === 'ROLE_ADMIN') {
-      navigate('/admin/stories')
+    if (val.includes('@')) {
+      if (val.length > 100) {
+        setError('Email không được vượt quá 100 ký tự')
+        return
+      }
     } else {
-      navigate('/')
+      if (val.length > 50) {
+        setError('Tên đăng nhập không được vượt quá 50 ký tự')
+        return
+      }
     }
-  } catch (err) {
-    setError(err.message || 'Đăng nhập thất bại')
-  } finally {
-    setLoading(false)
+
+    setLoading(true)
+
+    try {
+      const response = await authService.login(val, formData.password)
+      if (response.user.role === 'ROLE_ADMIN') {
+        navigate('/admin/stories')
+      } else {
+        navigate('/')
+      }
+    } catch (err) {
+      setError(err.response?.data?.message || err.message || 'Tên đăng nhập/email hoặc mật khẩu không chính xác')
+    } finally {
+      setLoading(false)
+    }
   }
-}
 
   return (
     <div className="login-container">

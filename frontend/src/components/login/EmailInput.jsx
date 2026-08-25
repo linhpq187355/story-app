@@ -8,9 +8,10 @@ export default function EmailInput({ value, onChange }) {
         <Mail size={18} color="#5fa3d0" />
         <input
           type="text"
-          name="username"
+          name="usernameOrEmail"
           value={value}
           onChange={onChange}
+          maxLength={100}
           placeholder="example@email.com hoặc username"
         />
       </div>

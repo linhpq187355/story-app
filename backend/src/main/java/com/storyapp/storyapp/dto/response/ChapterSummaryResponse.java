@@ -21,5 +21,11 @@ public class ChapterSummaryResponse {
 
     private AccessLevel accessLevel;
 
+    private Long coinPrice;
+
+    private Boolean isPurchased;
+
+    private Boolean isLocked;
+
     private LocalDateTime createdAt;
 }

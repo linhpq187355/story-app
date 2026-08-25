@@ -16,9 +16,17 @@ public class UserResponse {
 
     private String email;
 
+    private String displayName;
+
+    private String avatar;
+
     private Role role;
 
     private Boolean isVip;
+
+    private LocalDateTime vipExpirationDate;
+
+    private Long coins;
 
     private LocalDateTime createdAt;
 }
