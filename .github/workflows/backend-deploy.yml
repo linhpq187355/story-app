@@ -35,6 +35,11 @@ jobs:
           docker push \
             storyappregistry2026.azurecr.io/story-app-backend:${{ github.sha }}
 
+      - name: Login to Azure
+        uses: azure/login@v2
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
       - name: Deploy to Azure App Service
         uses: azure/webapps-deploy@v3
         with:
