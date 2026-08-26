@@ -16,7 +16,7 @@ function mapStoryToBook(story) {
     genre: story.genreName ? [story.genreName] : ['Khác'],
     genreId: story.genreId,
     status: publicStoryService.mapStatus(story.status),
-    cover: publicStoryService.buildCoverUrl(story.coverImageUrl) || DEFAULT_COVER,
+    cover: story.coverImageUrl,
     rating: story.rating || 4.5,
     views: (story.viewCount || 0).toLocaleString('vi-VN'),
     viewCount: story.viewCount || 0,

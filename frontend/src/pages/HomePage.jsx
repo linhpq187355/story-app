@@ -199,7 +199,7 @@ export default function HomePage() {
                   followingStories.length > 0 ? (
                     followingStories.slice(0, 5).map((story) => {
                       const storyId = story.storyId || story.id;
-                      const cover = publicStoryService.buildCoverUrl(story.coverImageUrl) || DEFAULT_COVER;
+                      const cover = story.coverImageUrl;
                       const bookObj = { title: story.title, cover };
 
                       return (

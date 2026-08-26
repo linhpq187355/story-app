@@ -53,7 +53,7 @@ const RankingColumn = ({ title, items = [], onSelectStory }) => {
 
   const getCoverUrl = (imageUrl) => {
     if (!imageUrl) return DEFAULT_COVER;
-    return publicStoryService.buildCoverUrl(imageUrl) || DEFAULT_COVER;
+    return imageUrl;
   };
 
   return (
