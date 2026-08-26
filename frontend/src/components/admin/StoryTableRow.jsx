@@ -33,7 +33,7 @@ export default function StoryTableRow({ story, onEdit, onDelete, onManageChapter
       <td className="p-4">
         {story.coverImage ? (
           <img
-            src={`http://localhost:8080${story.coverImage}`}
+            src={`${story.coverImage}`}
             alt={`Bìa truyện ${story.title}`}
             className="w-12 h-16 object-cover rounded shadow-md border border-slate-600 group-hover:border-blue-400/50 transition-colors"
           />

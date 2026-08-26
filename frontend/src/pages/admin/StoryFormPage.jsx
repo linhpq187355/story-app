@@ -71,7 +71,7 @@ export default function StoryFormPage() {
       })
 
       // Set link ảnh cũ (từ DB) để hiển thị preview
-      setCoverPreviewUrl(story.coverImageUrl ? `http://localhost:8080${story.coverImageUrl}` : '')
+      setCoverPreviewUrl(story.coverImageUrl ? `${story.coverImageUrl}` : '')
     } catch (error) {
       setFormError('Không thể tải thông tin truyện!')
       navigate('/admin/stories')
