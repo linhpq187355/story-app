@@ -3,7 +3,7 @@ import EmailInput from './EmailInput'
 import PasswordInput from './PasswordInput'
 import LoginButton from './LoginButton'
 
-const GOOGLE_AUTH_URL = 'http://localhost:8080/oauth2/authorization/google';
+const GOOGLE_AUTH_URL = 'https://story-app-backend-czechbcvfdgec9ba.southeastasia-01.azurewebsites.net/oauth2/authorization/google';
 
 export default function LoginForm({ formData, onFormChange, onSubmit, loading, error }) {
   return (
