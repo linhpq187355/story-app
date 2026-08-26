@@ -45,7 +45,7 @@ public class OAuth2AuthenticationSuccessHandler
 
         if (email == null || email.isBlank()) {
             response.sendRedirect(
-                    "http://localhost:3000/login?error=google_email_missing"
+                    "http://story-app-navy.vercel.app/login?error=google_email_missing"
             );
             return;
         }
@@ -60,7 +60,7 @@ public class OAuth2AuthenticationSuccessHandler
         String token = jwtService.generateToken(user);
 
         String redirectUrl =
-                "http://localhost:3000/oauth2/redirect?token=" + token;
+                "http://story-app-navy.vercel.app/oauth2/redirect?token=" + token;
 
         response.sendRedirect(redirectUrl);
     }
