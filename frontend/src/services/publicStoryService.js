@@ -88,12 +88,6 @@ export const publicStoryService = {
         return api.get('/api/users/me/favorites', { params: cleanParams(params) });
     },
 
-    buildCoverUrl: (imageUrl) => {
-        if (!imageUrl) return null;
-        // Assuming the backend serves static files from a specific path
-        return `${api.defaults.baseURL}${imageUrl}`;
-    },
-
     mapStatus: (status) => {
         const statusMap = {
             ONGOING: 'Đang ra',

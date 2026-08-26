@@ -20,7 +20,7 @@ function mapStoryToBook(story, index) {
     author: story.authorName || 'Đang cập nhật',
     genre: story.genreName ? [story.genreName] : ['Khác'],
     status: publicStoryService.mapStatus(story.status),
-    cover: publicStoryService.buildCoverUrl(story.coverImageUrl) || DEFAULT_COVER,
+    cover: story.coverImageUrl,
     rating: Number(fallbackRating.toFixed(1)),
     views: normalizedViewCount.toLocaleString('vi-VN'),
     viewCount: normalizedViewCount,
