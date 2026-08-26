@@ -1231,7 +1231,7 @@ export default function PublicChapterDetailPage() {
 
                 {chapter.audio && showAudioPlayer && (
                   <AudioPlayer 
-                    src={chapter.audio.startsWith('http') ? chapter.audio : `http://localhost:8080${chapter.audio}`} 
+                    src={chapter.audio.startsWith('http') ? chapter.audio : `${chapter.audio}`}
                     onEnded={handleAudioEnded}
                     autoPlay={autoPlay}
                     theme={currentTheme}
