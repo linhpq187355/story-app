@@ -94,7 +94,7 @@ export const userService = {
     if (!avatarPath) return '/api/placeholder/96/96'; // Default avatar
     if (avatarPath.startsWith('http')) return avatarPath;
 
-    const baseUrl = api.defaults?.baseURL || 'http://localhost:8080';
+    const baseUrl = api.defaults?.baseURL || 'https://story-app-backend-czechbcvfdgec9ba.southeastasia-01.azurewebsites.net';
     return new URL(avatarPath, baseUrl).toString();
   },
 
