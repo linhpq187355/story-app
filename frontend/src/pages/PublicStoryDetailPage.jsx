@@ -361,7 +361,7 @@ export default function PublicStoryDetailPage() {
   }, [chapters]);
 
   const coverUrl = story?.coverImageUrl
-    ? publicStoryService.buildCoverUrl(story.coverImageUrl)
+    ? story.coverImageUrl
     : 'https://images.unsplash.com/photo-1526243741027-444d633d7365?w=300&h=420&fit=crop&auto=format'
 
   const statusLabel = publicStoryService.mapStatus(story?.status)
@@ -909,7 +909,7 @@ export default function PublicStoryDetailPage() {
             <div className="panel" style={{ padding: '1.25rem' }}>
               <SectionHeader title="Truyện Tương Tự" />
               {relatedStories.slice(0, 6).map((item) => {
-                const relatedCover = publicStoryService.buildCoverUrl(item.coverImageUrl)
+                const relatedCover = item.coverImageUrl
                 return (
                   <button
                     key={item.id}

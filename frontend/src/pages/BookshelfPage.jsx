@@ -205,7 +205,7 @@ export default function BookshelfPage() {
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '1.25rem' }}>
               {currentList.map((story) => {
                 const storyId = story.storyId || story.id;
-                const cover = publicStoryService.buildCoverUrl(story.coverImageUrl);
+                const cover = story.coverImageUrl;
                 const hasRead = Boolean(story.lastReadChapterId);
                 const targetChapterId = story.lastReadChapterId || story.firstChapterId;
 
