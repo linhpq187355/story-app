@@ -83,7 +83,7 @@ export default function StoryDetailPage() {
   }
 
   const statusConfig = STATUS_CONFIG[story.status] || STATUS_CONFIG.ONGOING
-  const coverImage = story.coverImageUrl ? `http://localhost:8080${story.coverImageUrl}` : ''
+  const coverImage = story.coverImageUrl ? `${story.coverImageUrl}` : ''
 
   return (
     <AdminLayout>
