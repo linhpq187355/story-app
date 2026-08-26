@@ -87,8 +87,8 @@ public class VipPaymentServiceImpl implements VipPaymentService {
                         .description(payosDesc)
                         .buyerName(user.getDisplayName() != null ? user.getDisplayName() : user.getUsername())
                         .buyerEmail(user.getEmail())
-                        .cancelUrl("http://localhost:3000/payment/cancel")
-                        .returnUrl("http://localhost:3000/payment/success")
+                        .cancelUrl("http://story-app-navy.vercel.app/payment/cancel")
+                        .returnUrl("http://story-app-navy.vercel.app/payment/success")
                         .build();
 
         CreatePaymentLinkResponse paymentLink =
@@ -131,8 +131,8 @@ public class VipPaymentServiceImpl implements VipPaymentService {
                         .description(payosDesc)
                         .buyerName(user.getDisplayName() != null ? user.getDisplayName() : user.getUsername())
                         .buyerEmail(user.getEmail())
-                        .cancelUrl("http://localhost:3000/payment/cancel")
-                        .returnUrl("http://localhost:3000/payment/success")
+                        .cancelUrl("http://story-app-navy.vercel.app/payment/cancel")
+                        .returnUrl("http://story-app-navy.vercel.app/payment/success")
                         .build();
 
         CreatePaymentLinkResponse paymentLink =
