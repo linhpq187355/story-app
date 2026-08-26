@@ -1,0 +1,40 @@
+name: Deploy Backend
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'backend/**'
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Login to ACR
+        uses: azure/docker-login@v1
+        with:
+          login-server: YOUR_ACR_NAME.azurecr.io
+          username: ${{ secrets.REGISTRY_USERNAME }}
+          password: ${{ secrets.REGISTRY_PASSWORD }}
+
+      - name: Build Docker image
+        run: |
+          docker build \
+            -t storyappregistry2026.azurecr.io/story-app-backend:${{ github.sha }} \
+            ./backend
+
+      - name: Push Docker image
+        run: |
+          docker push \
+            storyappregistry2026.azurecr.io/story-app-backend:${{ github.sha }}
+
+      - name: Deploy to Azure App Service
+        uses: azure/webapps-deploy@v3
+        with:
+          app-name: story-app-backend
+          images: storyappregistry2026.azurecr.io/story-app-backend:${{ github.sha }}
