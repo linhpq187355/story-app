@@ -15,6 +15,7 @@ public class StoryImportPreviewDto {
     private String externalId;
     private String title;
     private String author;
+    private String genre;
     private String description;
     private String coverUrl;
     private String status; // NEW, EXISTING, POSSIBLE_DUPLICATE
