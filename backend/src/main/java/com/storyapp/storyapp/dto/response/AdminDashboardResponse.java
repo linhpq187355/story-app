@@ -16,6 +16,7 @@ import java.util.List;
 public class AdminDashboardResponse {
     private DashboardSummaryResponse summary;
     private List<ReadingStatisticResponse> readingStatistics;
+    private List<RevenueStatisticResponse> revenueStatistics;
     private List<TopStoryResponse> topStories;
     private RevenueSummaryResponse revenue;
     private List<RecentActivityResponse> recentActivities;

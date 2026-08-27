@@ -30,4 +30,13 @@ public interface VipOrderRepository
     long countByStatus(PaymentStatus status);
 
     List<VipOrder> findByStatus(PaymentStatus status);
+
+    @Query(value = """
+        SELECT DATE_FORMAT(vo.created_at, '%Y-%m-%d') AS dateStr, COALESCE(SUM(vo.amount), 0) AS totalAmount
+        FROM vip_orders vo
+        WHERE vo.status = 'PAID' AND vo.created_at >= :startDate
+        GROUP BY DATE_FORMAT(vo.created_at, '%Y-%m-%d')
+        ORDER BY dateStr ASC
+    """, nativeQuery = true)
+    List<Object[]> sumDailyRevenueAfter(@Param("startDate") java.time.LocalDateTime startDate);
 }

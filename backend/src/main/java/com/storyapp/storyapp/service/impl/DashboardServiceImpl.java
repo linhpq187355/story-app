@@ -37,6 +37,7 @@ public class DashboardServiceImpl implements DashboardService {
     public AdminDashboardResponse getDashboardData() {
         DashboardSummaryResponse summary = buildSummary();
         List<ReadingStatisticResponse> readingStats = getReadingStatistics("7d");
+        List<RevenueStatisticResponse> revenueStats = getRevenueStatistics("7d");
         List<TopStoryResponse> topStories = buildTopStories();
         RevenueSummaryResponse revenue = buildRevenueSummary();
         List<RecentActivityResponse> recentActivities = buildRecentActivities();
@@ -45,6 +46,7 @@ public class DashboardServiceImpl implements DashboardService {
         return AdminDashboardResponse.builder()
                 .summary(summary)
                 .readingStatistics(readingStats)
+                .revenueStatistics(revenueStats)
                 .topStories(topStories)
                 .revenue(revenue)
                 .recentActivities(recentActivities)
@@ -80,6 +82,39 @@ public class DashboardServiceImpl implements DashboardService {
             result.add(ReadingStatisticResponse.builder()
                     .date(dateStr)
                     .views(views)
+                    .build());
+            current = current.plusDays(1);
+        }
+
+        return result;
+    }
+
+    @Override
+    public List<RevenueStatisticResponse> getRevenueStatistics(String period) {
+        int days = parseDays(period);
+        LocalDateTime startDate = LocalDateTime.now().minusDays(days - 1).with(LocalTime.MIN);
+
+        List<Object[]> rawStats = vipOrderRepository.sumDailyRevenueAfter(startDate);
+        Map<String, Long> dateRevMap = new HashMap<>();
+
+        for (Object[] row : rawStats) {
+            if (row != null && row.length >= 2 && row[0] != null) {
+                String dateStr = row[0].toString();
+                Long amount = ((Number) row[1]).longValue();
+                dateRevMap.put(dateStr, amount);
+            }
+        }
+
+        List<RevenueStatisticResponse> result = new ArrayList<>();
+        LocalDate current = startDate.toLocalDate();
+        LocalDate today = LocalDate.now();
+
+        while (!current.isAfter(today)) {
+            String dateStr = current.format(DATE_FORMATTER);
+            long amount = dateRevMap.getOrDefault(dateStr, 0L);
+            result.add(RevenueStatisticResponse.builder()
+                    .date(dateStr)
+                    .amount(amount)
                     .build());
             current = current.plusDays(1);
         }
@@ -246,18 +281,6 @@ public class DashboardServiceImpl implements DashboardService {
                     .targetUrl("/admin/stories")
                     .count(chaptersWithoutAudio.size())
                     .severity("INFO")
-                    .build());
-        }
-
-        // 3. Pending VIP orders
-        long pendingOrdersCount = vipOrderRepository.countByStatus(PaymentStatus.PENDING);
-        if (pendingOrdersCount > 0) {
-            result.add(AttentionItemResponse.builder()
-                    .type("PENDING_VIP_ORDERS")
-                    .message("Có " + pendingOrdersCount + " đơn hàng VIP/Nạp xu đang chờ xử lý")
-                    .targetUrl("/admin/vip")
-                    .count(pendingOrdersCount)
-                    .severity("DANGER")
                     .build());
         }
 

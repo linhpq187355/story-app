@@ -13,7 +13,7 @@ export default function AdminRoute() {
     return (
       <div className="min-h-screen bg-slate-950 flex flex-col items-center justify-center text-center px-4">
         <span className="material-symbols-outlined text-[64px] text-red-400 mb-4">lock</span>
-        <h1 className="font-serif text-3xl font-bold text-slate-100">Không có quyền truy cập</h1>
+        <h1 className="font-sans text-3xl font-bold text-slate-100">Không có quyền truy cập</h1>
         <p className="font-sans text-base text-slate-400 mt-2 mb-6">
           Bạn cần đăng nhập với tài khoản Admin để vào trang này.
         </p>
