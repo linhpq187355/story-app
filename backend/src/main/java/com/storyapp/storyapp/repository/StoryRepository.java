@@ -130,4 +130,12 @@ public interface StoryRepository extends JpaRepository<Story, Long>, JpaSpecific
     List<Story> findStoriesWithoutChapters();
 
     List<Story> findTop5ByIsDeletedFalseOrderByCreatedAtDesc();
+
+    List<Story> findByIsDeletedFalse();
+
+    java.util.Optional<Story> findByExternalId(String externalId);
+
+    List<Story> findByExternalIdIn(java.util.Collection<String> externalIds);
+
+    java.util.Optional<Story> findByTitleIgnoreCase(String title);
 }

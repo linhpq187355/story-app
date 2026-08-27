@@ -20,11 +20,15 @@ import lombok.Setter;
 import java.util.ArrayList;
 import java.util.List;
 
+import jakarta.persistence.UniqueConstraint;
+
 @Getter
 @Setter
 @NoArgsConstructor
 @Entity
-@Table(name = "chapters")
+@Table(name = "chapters", uniqueConstraints = {
+    @UniqueConstraint(name = "uk_chapters_story_number", columnNames = {"story_id", "chapter_number"})
+})
 public class Chapter extends BaseEntity {
 
     @Column(nullable = false, length = 255)

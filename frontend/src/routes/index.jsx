@@ -13,6 +13,7 @@ import CategoryManagementPage from '../pages/admin/CategoryManagementPage';
 import VipManagementPage from '../pages/admin/VipManagementPage';
 import BannedWordManagementPage from '../pages/admin/BannedWordManagementPage';
 import AdminDashboardPage from '../pages/admin/AdminDashboardPage';
+import AdminImportPage from '../pages/admin/AdminImportPage';
 import MainLayout from '../layouts/MainLayout';
 import AdminRoute from './AdminRoute';
 import SearchPage from '../pages/SearchPage/SearchPage';
@@ -128,6 +129,10 @@ export const router = createBrowserRouter([
       {
         path: '/admin/banned-words',
         element: <BannedWordManagementPage />,
+      },
+      {
+        path: '/admin/import',
+        element: <AdminImportPage />,
       },
     ],
   },

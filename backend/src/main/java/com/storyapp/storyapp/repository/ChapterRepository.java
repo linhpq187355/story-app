@@ -37,4 +37,8 @@ public interface ChapterRepository extends JpaRepository<Chapter, Long> {
     List<Chapter> findChaptersWithoutAudio();
 
     List<Chapter> findTop5ByOrderByCreatedAtDesc();
+
+    List<Chapter> findByStoryIdIn(java.util.Collection<Long> storyIds);
+
+    Optional<Chapter> findByStoryIdAndChapterNumber(Long storyId, Integer chapterNumber);
 }

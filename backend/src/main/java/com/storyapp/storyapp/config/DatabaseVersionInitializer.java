@@ -38,5 +38,15 @@ public class DatabaseVersionInitializer implements CommandLineRunner {
                 log.debug("Version update skipped for table '{}': {}", table, e.getMessage());
             }
         }
+
+        // Backfill null external_id for stories
+        try {
+            int backfilled = jdbcTemplate.update("UPDATE stories SET external_id = CONCAT('STORY-', LPAD(id, 6, '0')) WHERE external_id IS NULL OR external_id = ''");
+            if (backfilled > 0) {
+                log.info("Backfilled external_id for {} existing stories", backfilled);
+            }
+        } catch (Exception e) {
+            log.debug("External ID backfill skipped: {}", e.getMessage());
+        }
     }
 }
