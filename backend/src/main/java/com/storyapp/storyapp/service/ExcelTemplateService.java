@@ -25,7 +25,7 @@ public class ExcelTemplateService {
             // Sheet 1: STORY
             Sheet storySheet = workbook.createSheet("STORY");
             Row storyHeader = storySheet.createRow(0);
-            String[] storyColumns = {"external_id", "title", "author", "description", "cover_url", "status"};
+            String[] storyColumns = {"external_id", "title", "author", "genre", "description", "cover_url", "status"};
             for (int i = 0; i < storyColumns.length; i++) {
                 Cell cell = storyHeader.createCell(i);
                 cell.setCellValue(storyColumns[i]);
@@ -37,17 +37,19 @@ public class ExcelTemplateService {
             s1.createCell(0).setCellValue("TR001");
             s1.createCell(1).setCellValue("Đấu Phá Thương Khung");
             s1.createCell(2).setCellValue("Thiên Tằm Thổ Đậu");
-            s1.createCell(3).setCellValue("Một thế giới thuộc về Đấu Khí...");
-            s1.createCell(4).setCellValue("https://example.com/cover1.jpg");
-            s1.createCell(5).setCellValue("ONGOING");
+            s1.createCell(3).setCellValue("Huyền Huyễn");
+            s1.createCell(4).setCellValue("Một thế giới thuộc về Đấu Khí...");
+            s1.createCell(5).setCellValue("https://example.com/cover1.jpg");
+            s1.createCell(6).setCellValue("ONGOING");
 
             Row s2 = storySheet.createRow(2);
             s2.createCell(0).setCellValue("TR002");
             s2.createCell(1).setCellValue("Võ Động Càn Khôn");
             s2.createCell(2).setCellValue("Thiên Tằm Thổ Đậu");
-            s2.createCell(3).setCellValue("Đồ Thần Hóa Thần...");
-            s2.createCell(4).setCellValue("https://example.com/cover2.jpg");
-            s2.createCell(5).setCellValue("COMPLETED");
+            s2.createCell(3).setCellValue("Tiên Hiệp");
+            s2.createCell(4).setCellValue("Đồ Thần Hóa Thần...");
+            s2.createCell(5).setCellValue("https://example.com/cover2.jpg");
+            s2.createCell(6).setCellValue("COMPLETED");
 
             for (int i = 0; i < storyColumns.length; i++) {
                 storySheet.autoSizeColumn(i);
@@ -97,9 +99,11 @@ public class ExcelTemplateService {
 
             String[] instructions = {
                 "1. File Excel phải có 2 Sheet tên đúng chính xác: STORY và CHAPTERS.",
-                "2. Sheet STORY bao gồm các cột: external_id, title, author, description, cover_url, status.",
+                "2. Sheet STORY bao gồm các cột: external_id, title, author, genre, description, cover_url, status.",
                 "   - external_id: Mã nhận diện duy nhất của truyện (bắt buộc, ví dụ: TR001).",
                 "   - title: Tên truyện (bắt buộc).",
+                "   - author: Tên tác giả (nếu chưa có trong CSDL sẽ tự động tạo mới).",
+                "   - genre: Thể loại truyện (nếu chưa có trong CSDL sẽ tự động tạo mới).",
                 "   - status: ONGOING (Đang ra) hoặc COMPLETED (Hoàn thành). Mặc định là ONGOING.",
                 "3. Sheet CHAPTERS bao gồm các cột: external_story_id, chapter_number, title, content, access_level.",
                 "   - external_story_id: Mã truyện tương ứng bên sheet STORY (bắt buộc).",

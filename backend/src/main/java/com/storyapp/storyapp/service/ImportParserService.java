@@ -25,6 +25,7 @@ public class ImportParserService {
         private String externalId;
         private String title;
         private String author;
+        private String genre;
         private String description;
         private String coverUrl;
         private String status;
@@ -124,11 +125,17 @@ public class ImportParserService {
             String externalId = getCellValueAsString(row.getCell(colMap.get("external_id")));
             String title = getCellValueAsString(row.getCell(colMap.get("title")));
             String author = getCellValueAsString(colMap.containsKey("author") ? row.getCell(colMap.get("author")) : null);
+            
+            Integer genreColIdx = colMap.get("genre");
+            if (genreColIdx == null) genreColIdx = colMap.get("category");
+            if (genreColIdx == null) genreColIdx = colMap.get("thể loại");
+            String genre = getCellValueAsString(genreColIdx != null ? row.getCell(genreColIdx) : null);
+
             String description = getCellValueAsString(colMap.containsKey("description") ? row.getCell(colMap.get("description")) : null);
             String coverUrl = getCellValueAsString(colMap.containsKey("cover_url") ? row.getCell(colMap.get("cover_url")) : null);
             String status = getCellValueAsString(colMap.containsKey("status") ? row.getCell(colMap.get("status")) : null);
 
-            stories.add(new RawStoryRow(rowNum, externalId, title, author, description, coverUrl, status));
+            stories.add(new RawStoryRow(rowNum, externalId, title, author, genre, description, coverUrl, status));
         }
     }
 

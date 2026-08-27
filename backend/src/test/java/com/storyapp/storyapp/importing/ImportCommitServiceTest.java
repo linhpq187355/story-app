@@ -66,7 +66,7 @@ class ImportCommitServiceTest {
 
     @Test
     void commitImport_shouldCreateNewStoryAndNewChapters() {
-        RawStoryRow storyRow = new RawStoryRow(2, "TR001", "Đấu Phá Thương Khung", "Thiên Tằm Thổ Đậu", "Mô tả", "cover.jpg", "ONGOING");
+        RawStoryRow storyRow = new RawStoryRow(2, "TR001", "Đấu Phá Thương Khung", "Thiên Tằm Thổ Đậu", "Huyền Huyễn", "Mô tả", "cover.jpg", "ONGOING");
         RawChapterRow chapterRow = new RawChapterRow(2, "TR001", 1, "1", "Chương 1", "Nội dung...", "FREE");
 
         when(storyRepository.findByExternalId("TR001")).thenReturn(Optional.empty());
@@ -99,7 +99,7 @@ class ImportCommitServiceTest {
 
     @Test
     void commitImport_shouldKeepExistingStoryWhenPolicyIsKeep() {
-        RawStoryRow storyRow = new RawStoryRow(2, "TR001", "Tên mới từ Excel", "Thiên Tằm Thổ Đậu", "Mô tả mới", "cover.jpg", "COMPLETED");
+        RawStoryRow storyRow = new RawStoryRow(2, "TR001", "Tên mới từ Excel", "Thiên Tằm Thổ Đậu", "Huyền Huyễn", "Mô tả mới", "cover.jpg", "COMPLETED");
 
         Story existingStory = new Story();
         existingStory.setId(50L);
@@ -108,7 +108,6 @@ class ImportCommitServiceTest {
         existingStory.setStatus(StoryStatus.ONGOING);
 
         when(storyRepository.findByExternalId("TR001")).thenReturn(Optional.of(existingStory));
-        when(genreRepository.findByName(anyString())).thenReturn(Optional.of(sampleGenre));
 
         ImportCommitRequest request = ImportCommitRequest.builder()
                 .importId("test-id")
@@ -126,7 +125,7 @@ class ImportCommitServiceTest {
 
     @Test
     void commitImport_shouldUpdateExistingStoryWhenPolicyIsUpdate() {
-        RawStoryRow storyRow = new RawStoryRow(2, "TR001", "Tên mới từ Excel", "Thiên Tằm Thổ Đậu", "Mô tả mới", "cover.jpg", "COMPLETED");
+        RawStoryRow storyRow = new RawStoryRow(2, "TR001", "Tên mới từ Excel", "Thiên Tằm Thổ Đậu", "Huyền Huyễn", "Mô tả mới", "cover.jpg", "COMPLETED");
 
         Story existingStory = new Story();
         existingStory.setId(50L);

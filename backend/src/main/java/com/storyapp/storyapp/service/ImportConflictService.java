@@ -93,6 +93,7 @@ public class ImportConflictService {
                     .externalId(s.getExternalId())
                     .title(s.getTitle())
                     .author(s.getAuthor())
+                    .genre(s.getGenre())
                     .description(s.getDescription())
                     .coverUrl(s.getCoverUrl())
                     .status(status)

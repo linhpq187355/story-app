@@ -52,9 +52,6 @@ public class ImportCommitService {
         // Map to keep track of story entity references by external_id (or DB ID) for chapter attachment
         Map<String, Story> storyMapByExtId = new HashMap<>();
 
-        // Ensure default Genre exists
-        Genre defaultGenre = getDefaultGenre();
-
         // 1. Process STORIES
         for (RawStoryRow s : rawStories) {
             String extId = s.getExternalId();
@@ -75,6 +72,10 @@ public class ImportCommitService {
                     if (s.getAuthor() != null && !s.getAuthor().isBlank()) {
                         Author author = findOrCreateAuthor(s.getAuthor().trim());
                         existingStory.setAuthor(author);
+                    }
+                    if (s.getGenre() != null && !s.getGenre().isBlank()) {
+                        Genre genre = findOrCreateGenre(s.getGenre().trim());
+                        existingStory.setGenre(genre);
                     }
                     if (s.getDescription() != null) {
                         existingStory.setDescription(s.getDescription());
@@ -124,7 +125,13 @@ public class ImportCommitService {
                 }
 
                 // Handle Genre
-                newStory.setGenre(defaultGenre);
+                if (s.getGenre() != null && !s.getGenre().isBlank()) {
+                    Genre genre = findOrCreateGenre(s.getGenre().trim());
+                    newStory.setGenre(genre);
+                } else {
+                    Genre defaultGenre = findOrCreateGenre("Truyện Tổng Hợp");
+                    newStory.setGenre(defaultGenre);
+                }
 
                 Story savedStory = storyRepository.save(newStory);
                 storyMapByExtId.put(extId, savedStory);
@@ -218,6 +225,15 @@ public class ImportCommitService {
                     Author a = new Author();
                     a.setName(name);
                     return authorRepository.save(a);
+                });
+    }
+
+    private Genre findOrCreateGenre(String name) {
+        return genreRepository.findByName(name)
+                .orElseGet(() -> {
+                    Genre g = new Genre();
+                    g.setName(name);
+                    return genreRepository.save(g);
                 });
     }
 
