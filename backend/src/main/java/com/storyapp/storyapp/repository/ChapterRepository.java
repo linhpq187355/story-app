@@ -32,4 +32,9 @@ public interface ChapterRepository extends JpaRepository<Chapter, Long> {
 
     @Query("SELECT c.id FROM Chapter c WHERE c.story.id = :storyId ORDER BY c.chapterNumber ASC LIMIT 1")
     Optional<Long> findFirstChapterId(@Param("storyId") Long storyId);
+
+    @Query("SELECT c FROM Chapter c WHERE c.audioFiles IS EMPTY")
+    List<Chapter> findChaptersWithoutAudio();
+
+    List<Chapter> findTop5ByOrderByCreatedAtDesc();
 }

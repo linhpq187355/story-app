@@ -1,0 +1,563 @@
+import { useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
+import AdminLayout from '../../layouts/AdminLayout';
+import { dashboardService } from '../../services/dashboardService';
+import { getErrorMessage } from '../../utils/errorHandler';
+
+// SVG Line & Area Chart Component for Reading Statistics
+const ReadingChart = ({ data, loading }) => {
+  const [hoveredPoint, setHoveredPoint] = useState(null);
+
+  if (loading) {
+    return (
+      <div className="h-64 flex items-center justify-center text-slate-500">
+        <span className="material-symbols-outlined animate-spin text-3xl">sync</span>
+      </div>
+    );
+  }
+
+  if (!data || data.length === 0) {
+    return (
+      <div className="h-64 flex flex-col items-center justify-center text-slate-400">
+        <span className="material-symbols-outlined text-4xl mb-2">analytics</span>
+        <p className="font-mono text-sm">Chưa có dữ liệu thống kê lượt đọc</p>
+      </div>
+    );
+  }
+
+  const padding = 40;
+  const width = 800;
+  const height = 240;
+  const chartW = width - padding * 2;
+  const chartH = height - padding * 2;
+
+  const maxViews = Math.max(...data.map((d) => d.views), 10);
+
+  const points = data.map((d, index) => {
+    const x = padding + (index / (data.length - 1 || 1)) * chartW;
+    const y = height - padding - (d.views / maxViews) * chartH;
+    return { x, y, date: d.date, views: d.views };
+  });
+
+  const pathD = points.reduce((acc, point, index) => {
+    return index === 0 ? `M ${point.x} ${point.y}` : `${acc} L ${point.x} ${point.y}`;
+  }, '');
+
+  const areaD = points.length > 0
+    ? `${pathD} L ${points[points.length - 1].x} ${height - padding} L ${points[0].x} ${height - padding} Z`
+    : '';
+
+  return (
+    <div className="relative w-full overflow-x-auto">
+      <svg viewBox={`0 0 ${width} ${height}`} className="w-full h-auto overflow-visible select-none">
+        <defs>
+          <linearGradient id="chartGradient" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stopColor="#3b82f6" stopOpacity="0.4" />
+            <stop offset="100%" stopColor="#3b82f6" stopOpacity="0.0" />
+          </linearGradient>
+        </defs>
+
+        {/* Y Gridlines & Labels */}
+        {[0, 0.25, 0.5, 0.75, 1].map((ratio) => {
+          const val = Math.round(maxViews * (1 - ratio));
+          const y = padding + ratio * chartH;
+          return (
+            <g key={ratio}>
+              <line x1={padding} y1={y} x2={width - padding} y2={y} stroke="#334155" strokeDasharray="3 3" />
+              <text x={padding - 8} y={y + 4} fill="#94a3b8" fontSize="10" textAnchor="end" fontFamily="monospace">
+                {val}
+              </text>
+            </g>
+          );
+        })}
+
+        {/* Gradient Fill Area */}
+        <path d={areaD} fill="url(#chartGradient)" />
+
+        {/* Line Path */}
+        <path d={pathD} fill="none" stroke="#60a5fa" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
+
+        {/* Data Circles & Hover Points */}
+        {points.map((pt, i) => (
+          <g key={i}>
+            <circle
+              cx={pt.x}
+              cy={pt.y}
+              r={hoveredPoint?.index === i ? 6 : 4}
+              className="fill-blue-500 stroke-slate-900 transition-all cursor-pointer"
+              strokeWidth="2"
+              onMouseEnter={() => setHoveredPoint({ ...pt, index: i })}
+              onMouseLeave={() => setHoveredPoint(null)}
+            />
+            {/* X-axis labels for step intervals */}
+            {(i === 0 || i === data.length - 1 || i % Math.ceil(data.length / 6) === 0) && (
+              <text
+                x={pt.x}
+                y={height - 12}
+                fill="#94a3b8"
+                fontSize="10"
+                textAnchor="middle"
+                fontFamily="monospace"
+              >
+                {pt.date.slice(5)}
+              </text>
+            )}
+          </g>
+        ))}
+      </svg>
+
+      {/* Tooltip Overlay */}
+      {hoveredPoint && (
+        <div
+          className="absolute pointer-events-none bg-slate-900 border border-slate-700 text-slate-100 px-3 py-1.5 rounded-lg shadow-xl text-xs font-mono z-10 transform -translate-x-1/2 -translate-y-full mb-2"
+          style={{
+            left: `${(hoveredPoint.x / width) * 100}%`,
+            top: `${(hoveredPoint.y / height) * 100}%`,
+          }}
+        >
+          <div className="font-semibold text-blue-400">{hoveredPoint.date}</div>
+          <div>{hoveredPoint.views.toLocaleString('vi-VN')} lượt đọc</div>
+        </div>
+      )}
+    </div>
+  );
+};
+
+export default function AdminDashboardPage() {
+  const [data, setData] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
+
+  const [period, setPeriod] = useState('7d');
+  const [readingStats, setReadingStats] = useState([]);
+  const [statsLoading, setStatsLoading] = useState(false);
+
+  const fetchDashboard = async () => {
+    setLoading(true);
+    setError('');
+    try {
+      const res = await dashboardService.getDashboardData();
+      setData(res);
+      setReadingStats(res.readingStatistics || []);
+    } catch (err) {
+      setError(getErrorMessage(err, 'Không thể tải dữ liệu dashboard. Vui lòng thử lại.'));
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handlePeriodChange = async (newPeriod) => {
+    setPeriod(newPeriod);
+    setStatsLoading(true);
+    try {
+      const stats = await dashboardService.getReadingStatistics(newPeriod);
+      setReadingStats(stats);
+    } catch (err) {
+      console.error('Failed to load reading statistics:', err);
+    } finally {
+      setStatsLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchDashboard();
+  }, []);
+
+  if (loading) {
+    return (
+      <AdminLayout>
+        <div className="flex flex-col items-center justify-center py-24 text-slate-400">
+          <span className="material-symbols-outlined animate-spin text-5xl text-blue-400 mb-4">sync</span>
+          <p className="font-mono text-sm">Đang tải dữ liệu Dashboard...</p>
+        </div>
+      </AdminLayout>
+    );
+  }
+
+  if (error) {
+    return (
+      <AdminLayout>
+        <div className="max-w-xl mx-auto my-16 bg-slate-900 border border-red-500/30 rounded-xl p-8 text-center">
+          <span className="material-symbols-outlined text-5xl text-red-400 mb-3">error</span>
+          <h2 className="font-serif text-xl font-bold text-slate-100 mb-2">Lỗi tải dữ liệu</h2>
+          <p className="text-slate-400 font-sans text-sm mb-6">{error}</p>
+          <button
+            onClick={fetchDashboard}
+            className="bg-blue-500 hover:bg-blue-600 text-white font-mono text-xs font-bold py-2.5 px-6 rounded-lg transition-colors inline-flex items-center gap-2"
+          >
+            <span className="material-symbols-outlined text-base">refresh</span>
+            Thử lại
+          </button>
+        </div>
+      </AdminLayout>
+    );
+  }
+
+  const { summary, topStories, revenue, recentActivities, attention } = data || {};
+
+  const kpiCards = [
+    {
+      title: 'Tổng số Truyện',
+      value: summary?.totalStories?.toLocaleString('vi-VN') || '0',
+      icon: 'menu_book',
+      color: 'from-blue-500/20 to-blue-600/10 border-blue-500/30 text-blue-400',
+    },
+    {
+      title: 'Tổng số Chương',
+      value: summary?.totalChapters?.toLocaleString('vi-VN') || '0',
+      icon: 'description',
+      color: 'from-indigo-500/20 to-indigo-600/10 border-indigo-500/30 text-indigo-400',
+    },
+    {
+      title: 'Tổng người dùng',
+      value: summary?.totalUsers?.toLocaleString('vi-VN') || '0',
+      icon: 'group',
+      color: 'from-emerald-500/20 to-emerald-600/10 border-emerald-500/30 text-emerald-400',
+    },
+    {
+      title: 'VIP Users Hoạt động',
+      value: summary?.activeVipUsers?.toLocaleString('vi-VN') || '0',
+      icon: 'workspace_premium',
+      color: 'from-amber-500/20 to-amber-600/10 border-amber-500/30 text-amber-400',
+    },
+    {
+      title: 'Tổng lượt đọc',
+      value: summary?.totalViews?.toLocaleString('vi-VN') || '0',
+      icon: 'visibility',
+      color: 'from-cyan-500/20 to-cyan-600/10 border-cyan-500/30 text-cyan-400',
+    },
+    {
+      title: 'Tổng doanh thu',
+      value: `${summary?.totalRevenue?.toLocaleString('vi-VN') || '0'} đ`,
+      icon: 'payments',
+      color: 'from-purple-500/20 to-purple-600/10 border-purple-500/30 text-purple-400',
+    },
+    {
+      title: 'User mới (7 ngày)',
+      value: summary?.newUsersLast7Days?.toLocaleString('vi-VN') || '0',
+      icon: 'person_add',
+      color: 'from-teal-500/20 to-teal-600/10 border-teal-500/30 text-teal-400',
+      trend: summary?.userGrowthPercent,
+    },
+    {
+      title: 'Truyện mới (7 ngày)',
+      value: summary?.newStoriesLast7Days?.toLocaleString('vi-VN') || '0',
+      icon: 'library_add',
+      color: 'from-rose-500/20 to-rose-600/10 border-rose-500/30 text-rose-400',
+      trend: summary?.storyGrowthPercent,
+    },
+  ];
+
+  return (
+    <AdminLayout>
+      <div className="space-y-8">
+        {/* Header */}
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+          <div>
+            <h1 className="font-serif text-3xl font-bold text-slate-100">Dashboard Thống Kê System</h1>
+            <p className="font-sans text-sm text-slate-400 mt-1">
+              Tổng quan tình hình hoạt động, doanh thu và nội dung trên hệ thống StoryWorld
+            </p>
+          </div>
+          <button
+            onClick={fetchDashboard}
+            className="bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 font-mono text-xs py-2 px-4 rounded-lg transition-colors flex items-center gap-2 self-start md:self-auto"
+          >
+            <span className="material-symbols-outlined text-sm">refresh</span>
+            Làm mới
+          </button>
+        </div>
+
+        {/* Section A: KPI Cards */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          {kpiCards.map((card, i) => (
+            <div
+              key={i}
+              className={`bg-gradient-to-br ${card.color} border rounded-xl p-5 backdrop-blur-sm relative overflow-hidden flex flex-col justify-between`}
+            >
+              <div className="flex items-center justify-between mb-3">
+                <span className="font-mono text-xs uppercase tracking-wider text-slate-300 font-medium">
+                  {card.title}
+                </span>
+                <span className="material-symbols-outlined text-2xl opacity-80">{card.icon}</span>
+              </div>
+              <div className="flex items-baseline justify-between">
+                <span className="font-sans text-2xl font-extrabold text-slate-100">{card.value}</span>
+                {card.trend !== undefined && (
+                  <span
+                    className={`font-mono text-xs font-semibold px-2 py-0.5 rounded-full ${
+                      card.trend >= 0 ? 'bg-emerald-500/20 text-emerald-400' : 'bg-rose-500/20 text-rose-400'
+                    }`}
+                  >
+                    {card.trend >= 0 ? `+${card.trend}%` : `${card.trend}%`}
+                  </span>
+                )}
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {/* Section B: Reading Statistics Chart */}
+        <div className="bg-slate-900 border border-slate-800 rounded-xl p-6 shadow-xl">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
+            <div>
+              <h2 className="font-serif text-lg font-bold text-slate-100">Thống Kê Lượt Đọc</h2>
+              <p className="font-sans text-xs text-slate-400 mt-0.5">Xu hướng đọc truyện của độc giả theo thời gian</p>
+            </div>
+            <div className="flex items-center gap-1 bg-slate-800 p-1 rounded-lg border border-slate-700 self-start sm:self-auto">
+              {[
+                { label: '7 ngày', value: '7d' },
+                { label: '30 ngày', value: '30d' },
+                { label: '3 tháng', value: '90d' },
+              ].map((item) => (
+                <button
+                  key={item.value}
+                  onClick={() => handlePeriodChange(item.value)}
+                  className={`font-mono text-xs px-3 py-1.5 rounded-md transition-all ${
+                    period === item.value
+                      ? 'bg-blue-500 text-white font-bold shadow'
+                      : 'text-slate-400 hover:text-slate-200'
+                  }`}
+                >
+                  {item.label}
+                </button>
+              ))}
+            </div>
+          </div>
+          <ReadingChart data={readingStats} loading={statsLoading} />
+        </div>
+
+        {/* Section C & D: Top Stories & Revenue Summary */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          {/* Section C: Top Stories (2 cols) */}
+          <div className="lg:col-span-2 bg-slate-900 border border-slate-800 rounded-xl p-6 shadow-xl flex flex-col">
+            <div className="flex items-center justify-between mb-4">
+              <div>
+                <h2 className="font-serif text-lg font-bold text-slate-100">Top 5 Truyện Lượt Đọc Cao Nhất</h2>
+                <p className="font-sans text-xs text-slate-400 mt-0.5">Danh sách truyện được quan tâm nhất</p>
+              </div>
+              <Link
+                to="/admin/stories"
+                className="font-mono text-xs text-blue-400 hover:underline flex items-center gap-1"
+              >
+                Quản lý truyện
+                <span className="material-symbols-outlined text-sm">arrow_forward</span>
+              </Link>
+            </div>
+
+            {topStories && topStories.length > 0 ? (
+              <div className="overflow-x-auto">
+                <table className="w-full text-left border-collapse">
+                  <thead>
+                    <tr className="border-b border-slate-800 text-slate-400 font-mono text-xs uppercase">
+                      <th className="pb-3 px-2">#</th>
+                      <th className="pb-3">Truyện</th>
+                      <th className="pb-3 text-right">Lượt đọc</th>
+                      <th className="pb-3 text-right">Yêu thích</th>
+                      <th className="pb-3 text-center">Trạng thái</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-slate-800/60 font-sans text-sm">
+                    {topStories.map((story, rank) => (
+                      <tr key={story.id} className="hover:bg-slate-800/40 transition-colors">
+                        <td className="py-3 px-2 font-mono font-bold">
+                          {rank === 0 && <span className="text-amber-400 text-base">🥇</span>}
+                          {rank === 1 && <span className="text-slate-300 text-base">🥈</span>}
+                          {rank === 2 && <span className="text-amber-600 text-base">🥉</span>}
+                          {rank > 2 && <span className="text-slate-500">#{rank + 1}</span>}
+                        </td>
+                        <td className="py-3">
+                          <div className="flex items-center gap-3">
+                            <img
+                              src={story.coverImageUrl ? (story.coverImageUrl.startsWith('http') ? story.coverImageUrl : `http://localhost:8080${story.coverImageUrl}`) : '/logo.png'}
+                              alt={story.title}
+                              className="w-9 h-12 object-cover rounded shadow"
+                            />
+                            <div>
+                              <Link
+                                to={`/admin/stories/${story.id}`}
+                                className="font-semibold text-slate-100 hover:text-blue-400 transition-colors line-clamp-1"
+                              >
+                                {story.title}
+                              </Link>
+                              <span className="text-xs text-slate-400 block">{story.authorName || 'Chưa rõ'}</span>
+                            </div>
+                          </div>
+                        </td>
+                        <td className="py-3 text-right font-mono font-bold text-cyan-400">
+                          {story.viewCount?.toLocaleString('vi-VN')}
+                        </td>
+                        <td className="py-3 text-right font-mono text-slate-300">
+                          {story.favoritesCount?.toLocaleString('vi-VN')}
+                        </td>
+                        <td className="py-3 text-center">
+                          <span
+                            className={`font-mono text-[10px] font-bold px-2 py-0.5 rounded-full uppercase ${
+                              story.status === 'COMPLETED'
+                                ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30'
+                                : 'bg-blue-500/20 text-blue-400 border border-blue-500/30'
+                            }`}
+                          >
+                            {story.status === 'COMPLETED' ? 'Hoàn thành' : 'Đang ra'}
+                          </span>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            ) : (
+              <div className="py-12 text-center text-slate-400 font-mono text-sm">Chưa có dữ liệu truyện</div>
+            )}
+          </div>
+
+          {/* Section D: Revenue Summary (1 col) */}
+          <div className="bg-slate-900 border border-slate-800 rounded-xl p-6 shadow-xl flex flex-col justify-between">
+            <div>
+              <div className="flex items-center justify-between mb-4">
+                <h2 className="font-serif text-lg font-bold text-slate-100">Doanh Thu Gói VIP</h2>
+                <span className="material-symbols-outlined text-purple-400">payments</span>
+              </div>
+              <div className="space-y-4">
+                <div className="bg-slate-800/70 border border-slate-700/60 rounded-lg p-4">
+                  <span className="font-mono text-xs uppercase text-slate-400">Hôm nay</span>
+                  <div className="font-sans text-xl font-extrabold text-slate-100 mt-1">
+                    {revenue?.today?.toLocaleString('vi-VN') || 0} đ
+                  </div>
+                </div>
+
+                <div className="bg-slate-800/70 border border-slate-700/60 rounded-lg p-4">
+                  <span className="font-mono text-xs uppercase text-slate-400">7 ngày qua</span>
+                  <div className="font-sans text-xl font-extrabold text-purple-300 mt-1">
+                    {revenue?.last7Days?.toLocaleString('vi-VN') || 0} đ
+                  </div>
+                </div>
+
+                <div className="bg-slate-800/70 border border-slate-700/60 rounded-lg p-4">
+                  <span className="font-mono text-xs uppercase text-slate-400">30 ngày qua</span>
+                  <div className="font-sans text-xl font-extrabold text-purple-400 mt-1">
+                    {revenue?.last30Days?.toLocaleString('vi-VN') || 0} đ
+                  </div>
+                </div>
+
+                <div className="bg-purple-900/30 border border-purple-500/30 rounded-lg p-4">
+                  <span className="font-mono text-xs uppercase text-purple-300 font-bold">Tổng tích lũy</span>
+                  <div className="font-sans text-2xl font-black text-purple-200 mt-1">
+                    {revenue?.total?.toLocaleString('vi-VN') || 0} đ
+                  </div>
+                </div>
+              </div>
+            </div>
+            <Link
+              to="/admin/vip"
+              className="mt-6 w-full text-center bg-purple-600 hover:bg-purple-700 text-white font-mono text-xs font-bold py-2.5 px-4 rounded-lg transition-colors inline-block"
+            >
+              Quản lý gói VIP & Giao dịch
+            </Link>
+          </div>
+        </div>
+
+        {/* Section E & F: Recent Activities & Need Attention */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          {/* Section E: Recent Activities */}
+          <div className="bg-slate-900 border border-slate-800 rounded-xl p-6 shadow-xl">
+            <h2 className="font-serif text-lg font-bold text-slate-100 mb-4">Hoạt Động Gần Đây</h2>
+            {recentActivities && recentActivities.length > 0 ? (
+              <div className="space-y-4">
+                {recentActivities.map((act, index) => {
+                  let icon = 'notifications';
+                  let iconColor = 'text-blue-400 bg-blue-500/10 border-blue-500/20';
+
+                  if (act.type === 'USER_REGISTERED') {
+                    icon = 'person_add';
+                    iconColor = 'text-emerald-400 bg-emerald-500/10 border-emerald-500/20';
+                  } else if (act.type === 'VIP_PURCHASED') {
+                    icon = 'workspace_premium';
+                    iconColor = 'text-amber-400 bg-amber-500/10 border-amber-500/20';
+                  } else if (act.type === 'STORY_CREATED') {
+                    icon = 'menu_book';
+                    iconColor = 'text-purple-400 bg-purple-500/10 border-purple-500/20';
+                  } else if (act.type === 'CHAPTER_CREATED') {
+                    icon = 'post_add';
+                    iconColor = 'text-cyan-400 bg-cyan-500/10 border-cyan-500/20';
+                  }
+
+                  return (
+                    <div key={index} className="flex items-start gap-3 p-3 rounded-lg bg-slate-800/40 border border-slate-800">
+                      <div className={`p-2 rounded-lg border ${iconColor} flex items-center justify-center shrink-0`}>
+                        <span className="material-symbols-outlined text-lg">{icon}</span>
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="font-sans text-sm text-slate-200">{act.description}</p>
+                        <span className="font-mono text-[11px] text-slate-400 mt-1 block">
+                          {act.timestamp ? new Date(act.timestamp).toLocaleString('vi-VN') : ''}
+                        </span>
+                      </div>
+                      {act.targetUrl && (
+                        <Link
+                          to={act.targetUrl}
+                          className="text-slate-400 hover:text-blue-400 transition-colors p-1"
+                          title="Xem chi tiết"
+                        >
+                          <span className="material-symbols-outlined text-base">open_in_new</span>
+                        </Link>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+            ) : (
+              <div className="py-8 text-center text-slate-400 font-mono text-sm">Chưa có hoạt động mới</div>
+            )}
+          </div>
+
+          {/* Section F: Need Attention */}
+          <div className="bg-slate-900 border border-slate-800 rounded-xl p-6 shadow-xl">
+            <h2 className="font-serif text-lg font-bold text-slate-100 mb-4">Cần Xử Lý Ngay</h2>
+            {attention && attention.length > 0 ? (
+              <div className="space-y-4">
+                {attention.map((item, index) => {
+                  let alertBg = 'bg-amber-500/10 border-amber-500/30 text-amber-300';
+                  let icon = 'warning';
+
+                  if (item.severity === 'DANGER') {
+                    alertBg = 'bg-rose-500/10 border-rose-500/30 text-rose-300';
+                    icon = 'error';
+                  } else if (item.severity === 'INFO') {
+                    alertBg = 'bg-blue-500/10 border-blue-500/30 text-blue-300';
+                    icon = 'info';
+                  }
+
+                  return (
+                    <div key={index} className={`flex items-center justify-between p-4 rounded-xl border ${alertBg}`}>
+                      <div className="flex items-center gap-3">
+                        <span className="material-symbols-outlined text-2xl shrink-0">{icon}</span>
+                        <div>
+                          <p className="font-sans text-sm font-semibold">{item.message}</p>
+                          <span className="font-mono text-xs opacity-80">Cần Admin kiểm tra và cập nhật</span>
+                        </div>
+                      </div>
+                      {item.targetUrl && (
+                        <Link
+                          to={item.targetUrl}
+                          className="font-mono text-xs font-bold px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-100 border border-slate-600 transition-colors shrink-0"
+                        >
+                          Xử lý
+                        </Link>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+            ) : (
+              <div className="py-8 text-center text-emerald-400 font-mono text-sm flex flex-col items-center">
+                <span className="material-symbols-outlined text-4xl mb-2">check_circle</span>
+                Hệ thống ổn định! Không có vấn đề tồn đọng cần xử lý.
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+    </AdminLayout>
+  );
+}

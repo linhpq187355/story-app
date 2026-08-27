@@ -116,4 +116,18 @@ public interface StoryRepository extends JpaRepository<Story, Long>, JpaSpecific
     List<StoryWithLatestChapterProjection> findUpdatingStoriesWithLatestChapter(
             @Param("limit") int limit
     );
+
+    long countByIsDeletedFalse();
+
+    long countByIsDeletedFalseAndCreatedAtGreaterThanEqual(java.time.LocalDateTime startDate);
+
+    long countByIsDeletedFalseAndCreatedAtBetween(java.time.LocalDateTime startDate, java.time.LocalDateTime endDate);
+
+    @Query("SELECT COALESCE(SUM(s.viewCount), 0) FROM Story s WHERE s.isDeleted = false")
+    Long sumTotalViews();
+
+    @Query("SELECT s FROM Story s WHERE s.isDeleted = false AND s.chapters IS EMPTY")
+    List<Story> findStoriesWithoutChapters();
+
+    List<Story> findTop5ByIsDeletedFalseOrderByCreatedAtDesc();
 }
