@@ -27,4 +27,13 @@ public interface UserRepository extends JpaRepository<User, Long> {
            "OR LOWER(u.displayName) LIKE LOWER(CONCAT('%', :keyword, '%'))) " +
            "AND (:isVip IS NULL OR u.isVip = :isVip)")
     List<User> filterUsers(@Param("keyword") String keyword, @Param("isVip") Boolean isVip);
+
+    @Query("SELECT COUNT(u) FROM User u WHERE u.isVip = true AND (u.vipExpirationDate IS NULL OR u.vipExpirationDate > :now)")
+    long countActiveVipUsers(@Param("now") java.time.LocalDateTime now);
+
+    long countByCreatedAtGreaterThanEqual(java.time.LocalDateTime startDate);
+
+    long countByCreatedAtBetween(java.time.LocalDateTime startDate, java.time.LocalDateTime endDate);
+
+    List<User> findTop5ByOrderByCreatedAtDesc();
 }

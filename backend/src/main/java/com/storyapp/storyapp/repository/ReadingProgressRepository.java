@@ -86,4 +86,13 @@ public interface ReadingProgressRepository
     List<RecentlyReadProjection> findRecentlyReadStories(
             @Param("userId") Long userId
     );
+
+    @Query(value = """
+        SELECT DATE_FORMAT(rp.updated_at, '%Y-%m-%d') AS dateStr, COUNT(rp.id) AS count
+        FROM reading_progress rp
+        WHERE rp.updated_at >= :startDate
+        GROUP BY DATE_FORMAT(rp.updated_at, '%Y-%m-%d')
+        ORDER BY dateStr ASC
+    """, nativeQuery = true)
+    List<Object[]> countDailyViewsAfter(@Param("startDate") java.time.LocalDateTime startDate);
 }

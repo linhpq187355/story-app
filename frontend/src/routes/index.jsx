@@ -12,6 +12,7 @@ import ChapterManagementPage from '../pages/admin/ChapterManagementPage';
 import CategoryManagementPage from '../pages/admin/CategoryManagementPage';
 import VipManagementPage from '../pages/admin/VipManagementPage';
 import BannedWordManagementPage from '../pages/admin/BannedWordManagementPage';
+import AdminDashboardPage from '../pages/admin/AdminDashboardPage';
 import MainLayout from '../layouts/MainLayout';
 import AdminRoute from './AdminRoute';
 import SearchPage from '../pages/SearchPage/SearchPage';
@@ -88,6 +89,14 @@ export const router = createBrowserRouter([
   {
     element: <AdminRoute />,
     children: [
+      {
+        path: '/admin',
+        element: <Navigate to="/admin/dashboard" replace />,
+      },
+      {
+        path: '/admin/dashboard',
+        element: <AdminDashboardPage />,
+      },
       {
         path: '/admin/stories',
         element: <StoryManagementPage />,
