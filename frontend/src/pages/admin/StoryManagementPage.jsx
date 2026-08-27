@@ -114,13 +114,22 @@ export default function StoryManagementPage() {
             Quản lý danh sách, trạng thái và nội dung các tác phẩm.
           </p>
         </div>
-        <button
-          onClick={() => navigate('/admin/stories/new')}
-          className="bg-blue-400 hover:bg-blue-500 text-slate-950 font-mono text-sm font-bold py-3 px-6 rounded-lg shadow-lg shadow-blue-400/20 transition-all flex items-center gap-2 whitespace-nowrap"
-        >
-          <span className="material-symbols-outlined">add</span>
-          Thêm Truyện Mới
-        </button>
+        <div className="flex items-center gap-3">
+          <button
+            onClick={() => navigate('/admin/import')}
+            className="bg-slate-800 hover:bg-slate-700 text-blue-400 border border-blue-400/30 font-mono text-sm font-bold py-3 px-5 rounded-lg shadow-lg transition-all flex items-center gap-2 whitespace-nowrap"
+          >
+            <span className="material-symbols-outlined">file_upload</span>
+            Import từ Excel
+          </button>
+          <button
+            onClick={() => navigate('/admin/stories/new')}
+            className="bg-blue-400 hover:bg-blue-500 text-slate-950 font-mono text-sm font-bold py-3 px-6 rounded-lg shadow-lg shadow-blue-400/20 transition-all flex items-center gap-2 whitespace-nowrap"
+          >
+            <span className="material-symbols-outlined">add</span>
+            Thêm Truyện Mới
+          </button>
+        </div>
       </header>
 
       {/* Filters Section */}
