@@ -3,6 +3,11 @@ import authService from '../../services/authService'
 
 const ADMIN_NAV_ITEMS = [
   {
+    label: 'Dashboard',
+    icon: 'dashboard',
+    path: '/admin/dashboard',
+  },
+  {
     label: 'Quản lý Truyện',
     icon: 'menu_book',
     path: '/admin/stories',

@@ -18,8 +18,8 @@ spring:
             enable: true
   datasource:
     url: ${SPRING_DATASOURCE_URL:jdbc:mysql://localhost:3306/story_app?createDatabaseIfNotExist=true&serverTimezone=Asia/Ho_Chi_Minh}
-    username: ${SPRING_DATASOURCE_USERNAME:root}
-    password: ${SPRING_DATASOURCE_PASSWORD:root}
+    username: story_user
+    password: StoryApp@123456
   jpa:
     database-platform: org.hibernate.dialect.MySQLDialect
     hibernate:
