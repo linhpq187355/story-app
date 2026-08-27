@@ -368,7 +368,7 @@ export default function VipManagementPage() {
               <span className="material-symbols-outlined text-3xl">workspace_premium</span>
             </div>
             <div>
-              <h2 className="font-serif text-3xl font-bold text-slate-100">
+              <h2 className="font-sans text-3xl font-bold text-slate-100">
                 Quản lý VIP & Gói Dịch Vụ
               </h2>
               <p className="font-sans text-sm text-slate-400 mt-1">
@@ -413,7 +413,7 @@ export default function VipManagementPage() {
         <div className="space-y-6">
           <div className="flex justify-between items-center bg-slate-800 p-4 rounded-xl border border-slate-700">
             <div>
-              <h3 className="font-serif text-lg font-bold text-slate-100">Các gói VIP hiển thị trên hệ thống</h3>
+              <h3 className="font-sans text-lg font-bold text-slate-100">Các gói VIP hiển thị trên hệ thống</h3>
               <p className="text-xs text-slate-400 mt-0.5">Admin có thể thêm mới, sửa giá tiền, số ngày sử dụng hoặc tạm ẩn gói.</p>
             </div>
             <button
@@ -437,7 +437,7 @@ export default function VipManagementPage() {
               <span className="material-symbols-outlined text-[48px] text-slate-600 block mb-3">
                 card_membership
               </span>
-              <p className="font-serif text-lg font-semibold text-slate-200 mb-1">Chưa có gói VIP nào</p>
+              <p className="font-sans text-lg font-semibold text-slate-200 mb-1">Chưa có gói VIP nào</p>
               <p className="font-sans text-sm text-slate-400 mb-4">Hãy bấm "Tạo gói VIP mới" để cấu hình gói dịch vụ cho độc giả.</p>
               <button
                 onClick={() => handleOpenPackageModal(null)}
@@ -501,13 +501,13 @@ export default function VipManagementPage() {
 
                   {/* Package Name & Price */}
                   <div>
-                    <h4 className="font-serif text-xl font-bold text-slate-100 mb-1">{pkg.name}</h4>
+                    <h4 className="font-sans text-xl font-bold text-slate-100 mb-1">{pkg.name}</h4>
                     <p className="text-xs text-slate-400 mb-4 line-clamp-2">{pkg.description || 'Không có mô tả.'}</p>
 
                     <div className="bg-slate-900/80 rounded-lg p-3 border border-slate-700/60 mb-4">
                       <div className="flex justify-between items-baseline mb-1">
                         <span className="font-mono text-xs text-slate-400">Giá gói:</span>
-                        <span className="font-serif text-xl font-bold text-amber-400">
+                        <span className="font-sans text-xl font-bold text-amber-400">
                           {pkg.price?.toLocaleString('vi-VN')} VNĐ
                         </span>
                       </div>
@@ -542,7 +542,7 @@ export default function VipManagementPage() {
               </div>
               <div>
                 <p className="font-mono text-xs uppercase tracking-wider text-slate-400">Tổng số người dùng</p>
-                <p className="font-serif text-2xl font-bold text-slate-100 mt-1">{stats.total}</p>
+                <p className="font-sans text-2xl font-bold text-slate-100 mt-1">{stats.total}</p>
               </div>
             </div>
 
@@ -552,7 +552,7 @@ export default function VipManagementPage() {
               </div>
               <div>
                 <p className="font-mono text-xs uppercase tracking-wider text-amber-300/80">VIP Active</p>
-                <p className="font-serif text-2xl font-bold text-amber-300 mt-1">{stats.vipCount}</p>
+                <p className="font-sans text-2xl font-bold text-amber-300 mt-1">{stats.vipCount}</p>
               </div>
             </div>
 
@@ -562,7 +562,7 @@ export default function VipManagementPage() {
               </div>
               <div>
                 <p className="font-mono text-xs uppercase tracking-wider text-slate-400">Tài khoản Thường</p>
-                <p className="font-serif text-2xl font-bold text-slate-100 mt-1">{stats.regularCount}</p>
+                <p className="font-sans text-2xl font-bold text-slate-100 mt-1">{stats.regularCount}</p>
               </div>
             </div>
           </div>
@@ -639,7 +639,7 @@ export default function VipManagementPage() {
               <span className="material-symbols-outlined text-[48px] text-slate-600 block mb-3">
                 person_off
               </span>
-              <p className="font-serif text-lg font-semibold text-slate-200 mb-1">Không tìm thấy người dùng nào</p>
+              <p className="font-sans text-lg font-semibold text-slate-200 mb-1">Không tìm thấy người dùng nào</p>
             </div>
           ) : (
             <div className="bg-slate-800 rounded-xl border border-slate-700 overflow-hidden shadow-xl">
@@ -779,7 +779,7 @@ export default function VipManagementPage() {
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm p-4">
           <div className="bg-slate-800 border border-slate-700 rounded-2xl w-full max-w-lg overflow-hidden shadow-2xl">
             <div className="p-6 border-b border-slate-700 flex justify-between items-center">
-              <h3 className="font-serif text-xl font-bold text-slate-100">
+              <h3 className="font-sans text-xl font-bold text-slate-100">
                 {editingPackage ? 'Chỉnh sửa Gói VIP' : 'Thêm mới Gói VIP'}
               </h3>
               <button
@@ -888,7 +888,7 @@ export default function VipManagementPage() {
       {grantVipModalUser && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm p-4">
           <div className="bg-slate-800 border border-slate-700 rounded-2xl w-full max-w-md overflow-hidden shadow-2xl p-6">
-            <h3 className="font-serif text-xl font-bold text-slate-100 mb-2">
+            <h3 className="font-sans text-xl font-bold text-slate-100 mb-2">
               Cấp / Gia hạn VIP cho người dùng
             </h3>
             <p className="text-xs text-slate-400 mb-4">
@@ -986,7 +986,7 @@ export default function VipManagementPage() {
       {coinsModalUser && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm p-4">
           <div className="bg-slate-800 border border-slate-700 rounded-2xl w-full max-w-md overflow-hidden shadow-2xl p-6">
-            <h3 className="font-serif text-xl font-bold text-slate-100 mb-2">
+            <h3 className="font-sans text-xl font-bold text-slate-100 mb-2">
               🪙 Đổi số dư Xu người dùng
             </h3>
             <p className="text-xs text-slate-400 mb-4">

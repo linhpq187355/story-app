@@ -4,133 +4,47 @@ import AdminLayout from '../../layouts/AdminLayout';
 import { dashboardService } from '../../services/dashboardService';
 import { getErrorMessage } from '../../utils/errorHandler';
 
-// SVG Line & Area Chart Component for Reading Statistics
-const ReadingChart = ({ data, loading }) => {
-  const [hoveredPoint, setHoveredPoint] = useState(null);
+import {
+  Chart as ChartJS,
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  BarElement,
+  Title,
+  Tooltip,
+  Legend,
+  Filler,
+} from 'chart.js';
+import { Line, Bar } from 'react-chartjs-2';
 
-  if (loading) {
-    return (
-      <div className="h-64 flex items-center justify-center text-slate-500">
-        <span className="material-symbols-outlined animate-spin text-3xl">sync</span>
-      </div>
-    );
-  }
-
-  if (!data || data.length === 0) {
-    return (
-      <div className="h-64 flex flex-col items-center justify-center text-slate-400">
-        <span className="material-symbols-outlined text-4xl mb-2">analytics</span>
-        <p className="font-mono text-sm">Chưa có dữ liệu thống kê lượt đọc</p>
-      </div>
-    );
-  }
-
-  const padding = 40;
-  const width = 800;
-  const height = 240;
-  const chartW = width - padding * 2;
-  const chartH = height - padding * 2;
-
-  const maxViews = Math.max(...data.map((d) => d.views), 10);
-
-  const points = data.map((d, index) => {
-    const x = padding + (index / (data.length - 1 || 1)) * chartW;
-    const y = height - padding - (d.views / maxViews) * chartH;
-    return { x, y, date: d.date, views: d.views };
-  });
-
-  const pathD = points.reduce((acc, point, index) => {
-    return index === 0 ? `M ${point.x} ${point.y}` : `${acc} L ${point.x} ${point.y}`;
-  }, '');
-
-  const areaD = points.length > 0
-    ? `${pathD} L ${points[points.length - 1].x} ${height - padding} L ${points[0].x} ${height - padding} Z`
-    : '';
-
-  return (
-    <div className="relative w-full overflow-x-auto">
-      <svg viewBox={`0 0 ${width} ${height}`} className="w-full h-auto overflow-visible select-none">
-        <defs>
-          <linearGradient id="chartGradient" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stopColor="#3b82f6" stopOpacity="0.4" />
-            <stop offset="100%" stopColor="#3b82f6" stopOpacity="0.0" />
-          </linearGradient>
-        </defs>
-
-        {/* Y Gridlines & Labels */}
-        {[0, 0.25, 0.5, 0.75, 1].map((ratio) => {
-          const val = Math.round(maxViews * (1 - ratio));
-          const y = padding + ratio * chartH;
-          return (
-            <g key={ratio}>
-              <line x1={padding} y1={y} x2={width - padding} y2={y} stroke="#334155" strokeDasharray="3 3" />
-              <text x={padding - 8} y={y + 4} fill="#94a3b8" fontSize="10" textAnchor="end" fontFamily="monospace">
-                {val}
-              </text>
-            </g>
-          );
-        })}
-
-        {/* Gradient Fill Area */}
-        <path d={areaD} fill="url(#chartGradient)" />
-
-        {/* Line Path */}
-        <path d={pathD} fill="none" stroke="#60a5fa" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
-
-        {/* Data Circles & Hover Points */}
-        {points.map((pt, i) => (
-          <g key={i}>
-            <circle
-              cx={pt.x}
-              cy={pt.y}
-              r={hoveredPoint?.index === i ? 6 : 4}
-              className="fill-blue-500 stroke-slate-900 transition-all cursor-pointer"
-              strokeWidth="2"
-              onMouseEnter={() => setHoveredPoint({ ...pt, index: i })}
-              onMouseLeave={() => setHoveredPoint(null)}
-            />
-            {/* X-axis labels for step intervals */}
-            {(i === 0 || i === data.length - 1 || i % Math.ceil(data.length / 6) === 0) && (
-              <text
-                x={pt.x}
-                y={height - 12}
-                fill="#94a3b8"
-                fontSize="10"
-                textAnchor="middle"
-                fontFamily="monospace"
-              >
-                {pt.date.slice(5)}
-              </text>
-            )}
-          </g>
-        ))}
-      </svg>
-
-      {/* Tooltip Overlay */}
-      {hoveredPoint && (
-        <div
-          className="absolute pointer-events-none bg-slate-900 border border-slate-700 text-slate-100 px-3 py-1.5 rounded-lg shadow-xl text-xs font-mono z-10 transform -translate-x-1/2 -translate-y-full mb-2"
-          style={{
-            left: `${(hoveredPoint.x / width) * 100}%`,
-            top: `${(hoveredPoint.y / height) * 100}%`,
-          }}
-        >
-          <div className="font-semibold text-blue-400">{hoveredPoint.date}</div>
-          <div>{hoveredPoint.views.toLocaleString('vi-VN')} lượt đọc</div>
-        </div>
-      )}
-    </div>
-  );
-};
+// Register Chart.js components
+ChartJS.register(
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  BarElement,
+  Title,
+  Tooltip,
+  Legend,
+  Filler
+);
 
 export default function AdminDashboardPage() {
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
-  const [period, setPeriod] = useState('7d');
+  // Reading Stats state
+  const [readingPeriod, setReadingPeriod] = useState('7d');
   const [readingStats, setReadingStats] = useState([]);
-  const [statsLoading, setStatsLoading] = useState(false);
+  const [readingLoading, setReadingLoading] = useState(false);
+
+  // Revenue Stats state
+  const [revenuePeriod, setRevenuePeriod] = useState('7d');
+  const [revenueStats, setRevenueStats] = useState([]);
+  const [revenueLoading, setRevenueLoading] = useState(false);
 
   const fetchDashboard = async () => {
     setLoading(true);
@@ -139,6 +53,7 @@ export default function AdminDashboardPage() {
       const res = await dashboardService.getDashboardData();
       setData(res);
       setReadingStats(res.readingStatistics || []);
+      setRevenueStats(res.revenueStatistics || []);
     } catch (err) {
       setError(getErrorMessage(err, 'Không thể tải dữ liệu dashboard. Vui lòng thử lại.'));
     } finally {
@@ -146,16 +61,29 @@ export default function AdminDashboardPage() {
     }
   };
 
-  const handlePeriodChange = async (newPeriod) => {
-    setPeriod(newPeriod);
-    setStatsLoading(true);
+  const handleReadingPeriodChange = async (period) => {
+    setReadingPeriod(period);
+    setReadingLoading(true);
     try {
-      const stats = await dashboardService.getReadingStatistics(newPeriod);
+      const stats = await dashboardService.getReadingStatistics(period);
       setReadingStats(stats);
     } catch (err) {
       console.error('Failed to load reading statistics:', err);
     } finally {
-      setStatsLoading(false);
+      setReadingLoading(false);
+    }
+  };
+
+  const handleRevenuePeriodChange = async (period) => {
+    setRevenuePeriod(period);
+    setRevenueLoading(true);
+    try {
+      const stats = await dashboardService.getRevenueStatistics(period);
+      setRevenueStats(stats);
+    } catch (err) {
+      console.error('Failed to load revenue statistics:', err);
+    } finally {
+      setRevenueLoading(false);
     }
   };
 
@@ -179,7 +107,7 @@ export default function AdminDashboardPage() {
       <AdminLayout>
         <div className="max-w-xl mx-auto my-16 bg-slate-900 border border-red-500/30 rounded-xl p-8 text-center">
           <span className="material-symbols-outlined text-5xl text-red-400 mb-3">error</span>
-          <h2 className="font-serif text-xl font-bold text-slate-100 mb-2">Lỗi tải dữ liệu</h2>
+          <h2 className="font-sans text-xl font-bold text-slate-100 mb-2">Lỗi tải dữ liệu</h2>
           <p className="text-slate-400 font-sans text-sm mb-6">{error}</p>
           <button
             onClick={fetchDashboard}
@@ -195,6 +123,7 @@ export default function AdminDashboardPage() {
 
   const { summary, topStories, revenue, recentActivities, attention } = data || {};
 
+  // KPI Cards Configuration
   const kpiCards = [
     {
       title: 'Tổng số Truyện',
@@ -248,13 +177,116 @@ export default function AdminDashboardPage() {
     },
   ];
 
+  // Chart.js Configuration for Reading Statistics
+  const readingChartData = {
+    labels: readingStats.map((item) => item.date?.slice(5) || item.date),
+    datasets: [
+      {
+        label: 'Lượt đọc',
+        data: readingStats.map((item) => item.views),
+        borderColor: '#3b82f6',
+        backgroundColor: 'rgba(59, 130, 246, 0.15)',
+        borderWidth: 2.5,
+        fill: true,
+        tension: 0.4,
+        pointBackgroundColor: '#60a5fa',
+        pointBorderColor: '#0f172a',
+        pointBorderWidth: 2,
+        pointRadius: 4,
+        pointHoverRadius: 6,
+      },
+    ],
+  };
+
+  const readingChartOptions = {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: { display: false },
+      tooltip: {
+        backgroundColor: '#0f172a',
+        borderColor: '#334155',
+        borderWidth: 1,
+        titleColor: '#60a5fa',
+        bodyColor: '#f8fafc',
+        padding: 10,
+        displayColors: false,
+        callbacks: {
+          label: (context) => `${context.parsed.y.toLocaleString('vi-VN')} lượt đọc`,
+        },
+      },
+    },
+    scales: {
+      x: {
+        grid: { color: '#1e293b' },
+        ticks: { color: '#94a3b8', font: { family: 'monospace', size: 11 } },
+      },
+      y: {
+        grid: { color: '#334155', strokeDashArray: 3 },
+        ticks: { color: '#94a3b8', font: { family: 'monospace', size: 11 } },
+        beginAtZero: true,
+      },
+    },
+  };
+
+  // Chart.js Configuration for Revenue Statistics
+  const revenueChartData = {
+    labels: revenueStats.map((item) => item.date?.slice(5) || item.date),
+    datasets: [
+      {
+        label: 'Doanh thu (VND)',
+        data: revenueStats.map((item) => item.amount),
+        backgroundColor: 'rgba(168, 85, 247, 0.65)',
+        borderColor: '#a855f7',
+        borderWidth: 1.5,
+        borderRadius: 4,
+        hoverBackgroundColor: '#c084fc',
+      },
+    ],
+  };
+
+  const revenueChartOptions = {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: { display: false },
+      tooltip: {
+        backgroundColor: '#0f172a',
+        borderColor: '#334155',
+        borderWidth: 1,
+        titleColor: '#c084fc',
+        bodyColor: '#f8fafc',
+        padding: 10,
+        displayColors: false,
+        callbacks: {
+          label: (context) => `${context.parsed.y.toLocaleString('vi-VN')} VNĐ`,
+        },
+      },
+    },
+    scales: {
+      x: {
+        grid: { color: '#1e293b' },
+        ticks: { color: '#94a3b8', font: { family: 'monospace', size: 11 } },
+      },
+      y: {
+        grid: { color: '#334155' },
+        ticks: {
+          color: '#94a3b8',
+          font: { family: 'monospace', size: 11 },
+          callback: (value) => `${(value / 1000).toLocaleString('vi-VN')}k`,
+        },
+        beginAtZero: true,
+      },
+    },
+  };
+
   return (
     <AdminLayout>
       <div className="space-y-8">
         {/* Header */}
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div>
-            <h1 className="font-serif text-3xl font-bold text-slate-100">Dashboard Thống Kê System</h1>
+            <h1 className="font-sans text-3xl font-bold text-slate-100">Dashboard Thống Kê System</h1>
             <p className="font-sans text-sm text-slate-400 mt-1">
               Tổng quan tình hình hoạt động, doanh thu và nội dung trên hệ thống StoryWorld
             </p>
@@ -297,43 +329,92 @@ export default function AdminDashboardPage() {
           ))}
         </div>
 
-        {/* Section B: Reading Statistics Chart */}
-        <div className="bg-slate-900 border border-slate-800 rounded-xl p-6 shadow-xl">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
-            <div>
-              <h2 className="font-serif text-lg font-bold text-slate-100">Thống Kê Lượt Đọc</h2>
-              <p className="font-sans text-xs text-slate-400 mt-0.5">Xu hướng đọc truyện của độc giả theo thời gian</p>
+        {/* Charts Section: Reading & Revenue Charts side-by-side or stacked */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          {/* Chart 1: Reading Statistics (Chart.js Line) */}
+          <div className="bg-slate-900 border border-slate-800 rounded-xl p-6 shadow-xl flex flex-col">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
+              <div>
+                <h2 className="font-sans text-lg font-bold text-slate-100">Thống Kê Lượt Đọc</h2>
+                <p className="font-sans text-xs text-slate-400 mt-0.5">Xu hướng đọc truyện của độc giả (Chart.js)</p>
+              </div>
+              <div className="flex items-center gap-1 bg-slate-800 p-1 rounded-lg border border-slate-700 self-start sm:self-auto">
+                {[
+                  { label: '7 ngày', value: '7d' },
+                  { label: '30 ngày', value: '30d' },
+                  { label: '3 tháng', value: '90d' },
+                ].map((item) => (
+                  <button
+                    key={item.value}
+                    onClick={() => handleReadingPeriodChange(item.value)}
+                    className={`font-mono text-xs px-3 py-1 rounded-md transition-all ${
+                      readingPeriod === item.value
+                        ? 'bg-blue-500 text-white font-bold shadow'
+                        : 'text-slate-400 hover:text-slate-200'
+                    }`}
+                  >
+                    {item.label}
+                  </button>
+                ))}
+              </div>
             </div>
-            <div className="flex items-center gap-1 bg-slate-800 p-1 rounded-lg border border-slate-700 self-start sm:self-auto">
-              {[
-                { label: '7 ngày', value: '7d' },
-                { label: '30 ngày', value: '30d' },
-                { label: '3 tháng', value: '90d' },
-              ].map((item) => (
-                <button
-                  key={item.value}
-                  onClick={() => handlePeriodChange(item.value)}
-                  className={`font-mono text-xs px-3 py-1.5 rounded-md transition-all ${
-                    period === item.value
-                      ? 'bg-blue-500 text-white font-bold shadow'
-                      : 'text-slate-400 hover:text-slate-200'
-                  }`}
-                >
-                  {item.label}
-                </button>
-              ))}
+            <div className="h-64 relative w-full">
+              {readingLoading ? (
+                <div className="h-full flex items-center justify-center text-slate-500">
+                  <span className="material-symbols-outlined animate-spin text-3xl">sync</span>
+                </div>
+              ) : (
+                <Line data={readingChartData} options={readingChartOptions} />
+              )}
             </div>
           </div>
-          <ReadingChart data={readingStats} loading={statsLoading} />
+
+          {/* Chart 2: Revenue Statistics (Chart.js Bar) */}
+          <div className="bg-slate-900 border border-slate-800 rounded-xl p-6 shadow-xl flex flex-col">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
+              <div>
+                <h2 className="font-sans text-lg font-bold text-slate-100">Thống Kê Doanh Thu</h2>
+                <p className="font-sans text-xs text-slate-400 mt-0.5">Biểu đồ biến động doanh thu gói VIP (Chart.js)</p>
+              </div>
+              <div className="flex items-center gap-1 bg-slate-800 p-1 rounded-lg border border-slate-700 self-start sm:self-auto">
+                {[
+                  { label: '7 ngày', value: '7d' },
+                  { label: '30 ngày', value: '30d' },
+                  { label: '3 tháng', value: '90d' },
+                ].map((item) => (
+                  <button
+                    key={item.value}
+                    onClick={() => handleRevenuePeriodChange(item.value)}
+                    className={`font-mono text-xs px-3 py-1 rounded-md transition-all ${
+                      revenuePeriod === item.value
+                        ? 'bg-purple-600 text-white font-bold shadow'
+                        : 'text-slate-400 hover:text-slate-200'
+                    }`}
+                  >
+                    {item.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+            <div className="h-64 relative w-full">
+              {revenueLoading ? (
+                <div className="h-full flex items-center justify-center text-slate-500">
+                  <span className="material-symbols-outlined animate-spin text-3xl">sync</span>
+                </div>
+              ) : (
+                <Bar data={revenueChartData} options={revenueChartOptions} />
+              )}
+            </div>
+          </div>
         </div>
 
         {/* Section C & D: Top Stories & Revenue Summary */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          {/* Section C: Top Stories (2 cols) */}
+          {/* Top Stories (2 cols) */}
           <div className="lg:col-span-2 bg-slate-900 border border-slate-800 rounded-xl p-6 shadow-xl flex flex-col">
             <div className="flex items-center justify-between mb-4">
               <div>
-                <h2 className="font-serif text-lg font-bold text-slate-100">Top 5 Truyện Lượt Đọc Cao Nhất</h2>
+                <h2 className="font-sans text-lg font-bold text-slate-100">Top 5 Truyện Lượt Đọc Cao Nhất</h2>
                 <p className="font-sans text-xs text-slate-400 mt-0.5">Danh sách truyện được quan tâm nhất</p>
               </div>
               <Link
@@ -411,11 +492,11 @@ export default function AdminDashboardPage() {
             )}
           </div>
 
-          {/* Section D: Revenue Summary (1 col) */}
+          {/* Revenue Summary (1 col) */}
           <div className="bg-slate-900 border border-slate-800 rounded-xl p-6 shadow-xl flex flex-col justify-between">
             <div>
               <div className="flex items-center justify-between mb-4">
-                <h2 className="font-serif text-lg font-bold text-slate-100">Doanh Thu Gói VIP</h2>
+                <h2 className="font-sans text-lg font-bold text-slate-100">Tóm Tắt Doanh Thu</h2>
                 <span className="material-symbols-outlined text-purple-400">payments</span>
               </div>
               <div className="space-y-4">
@@ -459,9 +540,9 @@ export default function AdminDashboardPage() {
 
         {/* Section E & F: Recent Activities & Need Attention */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          {/* Section E: Recent Activities */}
+          {/* Recent Activities */}
           <div className="bg-slate-900 border border-slate-800 rounded-xl p-6 shadow-xl">
-            <h2 className="font-serif text-lg font-bold text-slate-100 mb-4">Hoạt Động Gần Đây</h2>
+            <h2 className="font-sans text-lg font-bold text-slate-100 mb-4">Hoạt Động Gần Đây</h2>
             {recentActivities && recentActivities.length > 0 ? (
               <div className="space-y-4">
                 {recentActivities.map((act, index) => {
@@ -511,9 +592,9 @@ export default function AdminDashboardPage() {
             )}
           </div>
 
-          {/* Section F: Need Attention */}
+          {/* Need Attention */}
           <div className="bg-slate-900 border border-slate-800 rounded-xl p-6 shadow-xl">
-            <h2 className="font-serif text-lg font-bold text-slate-100 mb-4">Cần Xử Lý Ngay</h2>
+            <h2 className="font-sans text-lg font-bold text-slate-100 mb-4">Cần Xử Lý Ngay</h2>
             {attention && attention.length > 0 ? (
               <div className="space-y-4">
                 {attention.map((item, index) => {

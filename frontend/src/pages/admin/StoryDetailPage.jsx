@@ -169,7 +169,7 @@ export default function StoryDetailPage() {
         <section className="space-y-6">
           <div className="bg-slate-800 rounded-xl border border-slate-700 p-6">
             <p className="font-mono text-xs uppercase tracking-wider text-slate-400">Tên truyện</p>
-            <h3 className="font-serif text-3xl font-bold text-slate-100 mt-2">{story.title}</h3>
+            <h3 className="font-sans text-3xl font-bold text-slate-100 mt-2">{story.title}</h3>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">

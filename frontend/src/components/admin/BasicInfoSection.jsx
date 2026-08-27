@@ -10,7 +10,7 @@ export default function BasicInfoSection({
       aria-label="Thông tin cơ bản"
       className="bg-slate-800 rounded-xl border border-slate-700 p-6 space-y-6"
     >
-      <h2 className="font-serif text-xl font-bold text-slate-100 border-b border-slate-700 pb-4">
+      <h2 className="font-sans text-xl font-bold text-slate-100 border-b border-slate-700 pb-4">
         Thông tin cơ bản
       </h2>
 

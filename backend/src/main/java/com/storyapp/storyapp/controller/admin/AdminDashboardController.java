@@ -37,4 +37,12 @@ public class AdminDashboardController {
     ) {
         return ResponseEntity.ok(dashboardService.getReadingStatistics(period));
     }
+
+    @GetMapping("/revenue-statistics")
+    @Operation(summary = "Get revenue statistics for custom period (7d, 30d, 90d)")
+    public ResponseEntity<List<com.storyapp.storyapp.dto.response.RevenueStatisticResponse>> getRevenueStatistics(
+            @RequestParam(defaultValue = "7d") String period
+    ) {
+        return ResponseEntity.ok(dashboardService.getRevenueStatistics(period));
+    }
 }

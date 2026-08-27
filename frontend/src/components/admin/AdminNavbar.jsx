@@ -14,7 +14,7 @@ export default function AdminNavbar({ onMenuClick }) {
         >
           <span className="material-symbols-outlined">menu</span>
         </button>
-        <h2 className="font-serif text-xl font-bold text-slate-100 hidden md:block">
+        <h2 className="font-sans text-xl font-bold text-slate-100 hidden md:block">
           
         </h2>
       </div>

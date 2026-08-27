@@ -62,7 +62,7 @@ export default function AdminSidebar({ isOpen, onClose }) {
             alt="StoryWorld Logo"
             className="w-16 h-16 object-cover"
           />
-          <h1 className="font-serif text-2xl font-bold text-slate-100">
+          <h1 className="font-sans text-2xl font-bold text-slate-100">
             StoryWorld
           </h1>
         </header>

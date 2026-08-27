@@ -109,7 +109,7 @@ export default function StoryManagementPage() {
       {/* Page Header */}
       <header className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
         <div>
-          <h2 className="font-serif text-3xl font-bold text-slate-100">Quản lý Truyện</h2>
+          <h2 className="font-sans text-3xl font-bold text-slate-100">Quản lý Truyện</h2>
           <p className="font-sans text-base text-slate-400 mt-1">
             Quản lý danh sách, trạng thái và nội dung các tác phẩm.
           </p>
