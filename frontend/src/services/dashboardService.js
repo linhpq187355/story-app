@@ -10,4 +10,9 @@ export const dashboardService = {
     const response = await api.get(`/api/admin/dashboard/reading-statistics?period=${period}`);
     return response.data;
   },
+
+  getRevenueStatistics: async (period = '7d') => {
+    const response = await api.get(`/api/admin/dashboard/revenue-statistics?period=${period}`);
+    return response.data;
+  },
 };

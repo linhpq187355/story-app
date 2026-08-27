@@ -53,7 +53,7 @@ export default function LoginPage() {
     try {
       const response = await authService.login(val, formData.password)
       if (response.user.role === 'ROLE_ADMIN') {
-        navigate('/admin/stories')
+        navigate('/admin/dashboard')
       } else {
         navigate('/')
       }

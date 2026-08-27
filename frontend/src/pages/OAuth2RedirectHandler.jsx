@@ -16,7 +16,11 @@ export default function OAuth2RedirectHandler() {
             authService.getMe()
                 .then(response => {
                     localStorage.setItem('user', JSON.stringify(response.data));
-                    navigate('/');
+                    if (response.data?.role === 'ROLE_ADMIN') {
+                        navigate('/admin/dashboard');
+                    } else {
+                        navigate('/');
+                    }
                 })
                 .catch(err => {
                     console.error("Could not fetch user info after oauth login", err);

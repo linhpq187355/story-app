@@ -324,7 +324,7 @@ export default function ChapterManagementPage() {
                 {notice.type === 'success' ? 'check_circle' : 'error'}
               </span>
             </div>
-            <h3 className="font-serif text-2xl font-bold text-slate-100 text-center mb-2">
+            <h3 className="font-sans text-2xl font-bold text-slate-100 text-center mb-2">
               {notice.title}
             </h3>
             <p className="text-slate-300 text-center mb-6">{notice.message}</p>
@@ -356,7 +356,7 @@ export default function ChapterManagementPage() {
             <span className="material-symbols-outlined text-[18px]">arrow_back</span>
             Quản lý Truyện
           </button>
-          <h2 className="font-serif text-3xl font-bold text-slate-100">
+          <h2 className="font-sans text-3xl font-bold text-slate-100">
             Chương truyện: {story ? story.title : '...'}
           </h2>
           <p className="font-sans text-base text-slate-400 mt-1">
@@ -377,7 +377,7 @@ export default function ChapterManagementPage() {
       {/* Create/Edit Form */}
       {formOpen && (
         <section aria-label="Form chương" className="bg-slate-800 rounded-xl border border-slate-700 p-6 mb-8 space-y-6">
-          <h3 className="font-serif text-xl font-bold text-slate-100 border-b border-slate-700 pb-4">
+          <h3 className="font-sans text-xl font-bold text-slate-100 border-b border-slate-700 pb-4">
             {editingChapterId ? `Sửa chương #${editingChapterId}` : 'Thêm chương mới'}
           </h3>
 
@@ -664,7 +664,7 @@ export default function ChapterManagementPage() {
                 <p className="font-mono text-xs uppercase tracking-wider text-slate-400">
                   Chương {viewingChapter.chapterNumber}
                 </p>
-                <h3 className="font-serif text-xl font-bold text-slate-100 mt-1">
+                <h3 className="font-sans text-xl font-bold text-slate-100 mt-1">
                   {viewingChapter.title}
                 </h3>
               </div>

@@ -198,7 +198,7 @@ export default function CategoryManagementPage() {
     <AdminLayout>
       <header className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
         <div>
-          <h2 className="font-serif text-3xl font-bold text-slate-100">Quản lý Tác giả & Thể loại</h2>
+          <h2 className="font-sans text-3xl font-bold text-slate-100">Quản lý Tác giả & Thể loại</h2>
           <p className="font-sans text-base text-slate-400 mt-1">
             Tạo, cập nhật, lọc và xóa tác giả, thể loại của hệ thống.
           </p>
@@ -213,7 +213,7 @@ export default function CategoryManagementPage() {
         <div className="grid grid-cols-1 xl:grid-cols-2 gap-8">
           <section className="bg-slate-800 rounded-xl border border-slate-700 p-5">
             <div className="flex items-center justify-between gap-3 mb-5">
-              <h3 className="font-serif text-2xl font-bold text-slate-100">Tác giả</h3>
+              <h3 className="font-sans text-2xl font-bold text-slate-100">Tác giả</h3>
             </div>
 
             <form onSubmit={handleAuthorSubmit} className="space-y-4 mb-6">
@@ -311,7 +311,7 @@ export default function CategoryManagementPage() {
 
           <section className="bg-slate-800 rounded-xl border border-slate-700 p-5">
             <div className="flex items-center justify-between gap-3 mb-5">
-              <h3 className="font-serif text-2xl font-bold text-slate-100">Thể loại</h3>
+              <h3 className="font-sans text-2xl font-bold text-slate-100">Thể loại</h3>
             </div>
 
             <form onSubmit={handleGenreSubmit} className="space-y-4 mb-6">
