@@ -21,6 +21,9 @@ import java.util.List;
 @SQLRestriction("is_deleted = false")
 public class Story extends BaseEntity {
 
+    @Column(name = "external_id", unique = true, length = 100)
+    private String externalId;
+
     @Column(nullable = false, length = 255)
     private String title;
 

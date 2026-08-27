@@ -27,6 +27,11 @@ const ADMIN_NAV_ITEMS = [
     icon: 'block',
     path: '/admin/banned-words',
   },
+  {
+    label: 'Import Excel',
+    icon: 'file_upload',
+    path: '/admin/import',
+  },
 ]
 
 export default function AdminSidebar({ isOpen, onClose }) {
