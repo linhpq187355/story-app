@@ -438,6 +438,7 @@ export default function AdminImportPage() {
                           <th className="p-3">Mã Truyện (external_id)</th>
                           <th className="p-3">Tên Truyện</th>
                           <th className="p-3">Tác giả</th>
+                          <th className="p-3">Thể loại</th>
                           <th className="p-3">Trạng thái phát hiện</th>
                           <th className="p-3">Ghi chú / Cảnh báo</th>
                         </tr>
@@ -448,6 +449,7 @@ export default function AdminImportPage() {
                             <td className="p-3 font-mono font-bold text-blue-400">{st.externalId}</td>
                             <td className="p-3 font-semibold text-slate-100">{st.title}</td>
                             <td className="p-3 text-slate-400">{st.author || 'Chưa rõ'}</td>
+                            <td className="p-3 text-slate-400">{st.genre || 'Tổng hợp'}</td>
                             <td className="p-3">
                               {st.status === 'NEW' && (
                                 <span className="inline-flex items-center gap-1 bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 font-mono text-[10px] px-2.5 py-1 rounded-full font-bold">

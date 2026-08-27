@@ -23,8 +23,8 @@ class ImportValidationTest {
     @Test
     void validateParsedData_shouldDetectDuplicateExternalIdInFile() {
         List<RawStoryRow> stories = List.of(
-                new RawStoryRow(2, "TR001", "Truyện A", "Tác giả A", "Mô tả", "cover.jpg", "ONGOING"),
-                new RawStoryRow(3, "TR001", "Truyện B", "Tác giả B", "Mô tả", "cover.jpg", "ONGOING")
+                new RawStoryRow(2, "TR001", "Truyện A", "Tác giả A", "Huyền Huyễn", "Mô tả", "cover.jpg", "ONGOING"),
+                new RawStoryRow(3, "TR001", "Truyện B", "Tác giả B", "Huyền Huyễn", "Mô tả", "cover.jpg", "ONGOING")
         );
         List<RawChapterRow> chapters = Collections.emptyList();
 
@@ -37,7 +37,7 @@ class ImportValidationTest {
     @Test
     void validateParsedData_shouldDetectDuplicateChapterNumberInSameStory() {
         List<RawStoryRow> stories = List.of(
-                new RawStoryRow(2, "TR001", "Truyện A", "Tác giả A", "Mô tả", "cover.jpg", "ONGOING")
+                new RawStoryRow(2, "TR001", "Truyện A", "Tác giả A", "Huyền Huyễn", "Mô tả", "cover.jpg", "ONGOING")
         );
         List<RawChapterRow> chapters = List.of(
                 new RawChapterRow(2, "TR001", 1, "1", "Chương 1", "Nội dung", "FREE"),
@@ -53,7 +53,7 @@ class ImportValidationTest {
     @Test
     void validateParsedData_shouldDetectMissingReferencedStoryInChapters() {
         List<RawStoryRow> stories = List.of(
-                new RawStoryRow(2, "TR001", "Truyện A", "Tác giả A", "Mô tả", "cover.jpg", "ONGOING")
+                new RawStoryRow(2, "TR001", "Truyện A", "Tác giả A", "Huyền Huyễn", "Mô tả", "cover.jpg", "ONGOING")
         );
         List<RawChapterRow> chapters = List.of(
                 new RawChapterRow(2, "TR999", 1, "1", "Chương 1", "Nội dung", "FREE")
